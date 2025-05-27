@@ -1,15 +1,37 @@
 import { User } from "../models/user";
+import { createUser, findUserByEmail } from "../repositories/user.repository";
 import { generateInitialsAvatar } from "../utils/generateInitialAvatar";
 
-export const oauthLogin = async (
-  provider: "google" | "github",
+export const oauthGoogleLogin = async (profile: any) => {
+  const email = profile.emails?.[0]?.value || profile._json?.email;
+
+  if (!email) {
+    throw new Error("No verified email returned from Google");
+  }
+
+  const existingUser = await findUserByEmail(email);
+  if (existingUser) return existingUser;
+
+  const newUser = await createUser({
+    email,
+    name: profile.displayName || "Google User",
+    password: "oauth",
+    avatar:
+      profile.photos?.[0]?.value || generateInitialsAvatar(profile.displayName),
+    status: "ACTIVED",
+  });
+
+  return newUser;
+};
+
+export const oauthGitHubLogin = async (
   profile: any,
   accessToken?: string
 ) => {
   let email = profile.emails?.[0]?.value;
 
   // GitHub: if email is missing, fetch manually
-  if (!email && provider === "github" && accessToken) {
+  if (!email && accessToken) {
     const res = await fetch("https://api.github.com/user/emails", {
       headers: {
         Authorization: `token ${accessToken}`,

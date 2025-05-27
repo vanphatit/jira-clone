@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { signAccessToken, signRefreshToken } from "../utils/jwt";
 import { redis } from "../utils/redis";
-import { oauthLogin } from "../services/oauth.service";
+import { oauthGitHubLogin, oauthGoogleLogin } from "../services/oauth.service";
 
 export const handleGoogleCallback = async (req: Request, res: Response) => {
   try {
     const profile = req.user as any;
-    const user = await oauthLogin("google", profile);
+    const user = await oauthGoogleLogin(profile);
 
     const accessToken = signAccessToken({ userId: user.id });
     const refreshToken = signRefreshToken({ userId: user.id });
@@ -35,7 +35,7 @@ export const handleGithubCallback = async (req: Request, res: Response) => {
   try {
     const profile = req.user as any;
     const accessToken = (req as any).oauthAccessToken; // passed from strategy
-    const user = await oauthLogin("github", profile, accessToken);
+    const user = await oauthGitHubLogin( profile, accessToken);
 
     const jwt = signAccessToken({ userId: user.id });
     const refresh = signRefreshToken({ userId: user.id });

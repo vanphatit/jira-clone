@@ -44,8 +44,17 @@ export const refresh = async (req: Request, res: Response) => {
     const token = req.cookies.refreshToken;
     if (!token) throw new Error("No refresh token");
 
-    const accessToken = await AuthService.refreshAccessToken(token);
-    res.json({ accessToken });
+    const { accessToken, newRefreshToken } = await AuthService.refreshAccessToken(token);
+
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      path: "/",
+      domain: process.env.COOKIE_DOMAIN, // e.g., "localhost" or custom domain
+    });
+
+    res.json({ accessToken, newRefreshToken });
   } catch (err: any) {
     res.status(401).json({ message: err.message });
   }

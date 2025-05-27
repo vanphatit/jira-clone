@@ -87,7 +87,14 @@ export const refreshAccessToken = async (refreshToken: string) => {
   const exists = await redis.get(refreshToken);
   if (!exists) throw new Error("Token revoked");
 
-  return signAccessToken({ userId: payload.userId });
+  await redis.del(refreshToken);
+
+  const accessToken = signAccessToken({ userId: payload.userId });
+  const newRefreshToken = signRefreshToken({ userId: payload.userId });
+
+  await redis.set(newRefreshToken, payload.userId);
+
+  return { accessToken, newRefreshToken };
 };
 
 export const logoutUser = async (refreshToken: string) => {

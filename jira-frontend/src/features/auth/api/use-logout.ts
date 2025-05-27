@@ -1,7 +1,7 @@
 // src/features/auth/api/use-logout.ts
 import { useMutation } from "@tanstack/react-query";
 import { API_BASE_URL } from "@/lib/api";
-import { clearAccessToken } from "@/lib/auth";
+import { useAuthStore } from "@/stores/authStore";
 
 export const useLogout = () => {
   return useMutation({
@@ -10,7 +10,7 @@ export const useLogout = () => {
         method: "DELETE",
         credentials: "include",
       });
-      clearAccessToken();
+      useAuthStore.getState().clearSession()
     },
   });
 };
