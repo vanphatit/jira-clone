@@ -151,7 +151,7 @@ export const resendVerificationCode = async (req: Request, res: Response) => {
   await redis.set(`verify:${email}`, code, { EX: 600 }); // 10 minutes
 
   console.log(`[DEBUG] New code for ${email}: ${code}`);
-  // await sendEmail(email, code)
+  await sendVerificationEmail(email, code)
 
   res.json({ message: "Verification code resent." });
 };

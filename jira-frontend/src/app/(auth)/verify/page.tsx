@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ const VerifyPage = () => {
   const email = searchParams.get("email") || "";
 
   const [code, setCode] = useState(["", "", "", "", "", ""]);
+  const [cooldown, setCooldown] = useState(0);
 
   const verifyEmail = useVerifyEmail();
   const resendCode = useResendCode();
@@ -55,13 +56,34 @@ const VerifyPage = () => {
   };
 
   const handleResendEmail = async () => {
+    if (cooldown > 0) return;
+
     try {
       await resendCode.mutateAsync({ email });
       toast.success("Verification code resent!");
+
+      setCooldown(30); // ⏳ disable for 30s
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to resend");
     }
   };
+
+  useEffect(() => {
+    if (cooldown === 0) return;
+  
+    const interval = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  
+    return () => clearInterval(interval);
+  }, [cooldown]);  
+  
 
   return (
     <div className="bg-white rounded-lg shadow-lg border border-gray-100 p-8 w-full max-w-md">
@@ -70,7 +92,7 @@ const VerifyPage = () => {
           <Image src="/logo.svg" height={56} width={152} alt="logo"></Image>
         </div>
         <h1 className="text-2xl font-semibold text-gray-900 mb-3">
-          We've emailed you a code
+          We&apos;ve emailed you a code
         </h1>
         <p className="text-gray-600 text-sm">
           To complete your account setup, enter the code sent to:{" "}
@@ -105,9 +127,16 @@ const VerifyPage = () => {
       <div className="text-center mb-8">
         <button
           onClick={handleResendEmail}
-          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+          disabled={cooldown > 0}
+          className={`text-sm font-medium transition-colors duration-200 ${
+            cooldown > 0
+              ? "text-gray-400 cursor-not-allowed"
+              : "text-blue-600 hover:text-blue-700"
+          }`}
         >
-          Didn't receive an email? Resend email
+          {cooldown > 0
+            ? `Resend available in ${cooldown}s`
+            : "Didn't receive an email? Resend email"}
         </button>
       </div>
     </div>
