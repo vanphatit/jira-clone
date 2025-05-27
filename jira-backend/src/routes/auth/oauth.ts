@@ -1,7 +1,9 @@
 import express from "express";
 import passport from "passport";
-import { signAccessToken, signRefreshToken } from "../../utils/jwt";
-import { redis } from "../../utils/redis";
+import {
+  handleGoogleCallback,
+  handleGithubCallback,
+} from "../../controllers/oauth.controller";
 
 const router = express.Router();
 
@@ -17,49 +19,17 @@ router.get(
 router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
-  async (req, res) => {
-    const userId = (req.user as any).id;
-    const accessToken = signAccessToken({ userId });
-    const refreshToken = signRefreshToken({ userId });
-
-    await redis.set(refreshToken, userId);
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      domain: process.env.COOKIE_DOMAIN,
-      path: "/",
-    });
-
-    res.redirect(
-      `${process.env.CLIENT_URL}/callback?token=${accessToken}`
-    );
-  }
+  handleGoogleCallback
 );
 
 router.get(
   "/github/callback",
   passport.authenticate("github", { session: false }),
-  async (req, res) => {
-    const userId = (req.user as any).id;
-    const accessToken = signAccessToken({ userId });
-    const refreshToken = signRefreshToken({ userId });
-
-    await redis.set(refreshToken, userId);
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      domain: process.env.COOKIE_DOMAIN,
-      path: "/",
-    });
-
-    res.redirect(
-      `${process.env.CLIENT_URL}/callback?token=${accessToken}`
-    );
-  }
+  (req, res, next) => {
+    (req as any).oauthAccessToken = (req.user as any)?.accessToken;
+    next();
+  },
+  handleGithubCallback
 );
 
 export default router;

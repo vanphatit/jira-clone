@@ -44,59 +44,15 @@ passport.use(
 );
 
 passport.use(
-    new GitHubStrategy(
-        {
-        clientID: process.env.GITHUB_CLIENT_ID!,
-        clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-        callbackURL: `${process.env.SERVER_URL}/api/auth/oauth/github/callback`,
-        },
-        async (
-        accessToken: any,
-        _refreshToken: any,
-        profile: {
-            emails: { value: any }[];
-            displayName: any;
-            username: any;
-            photos: { value: any }[];
-        },
-        done: (arg0: unknown, arg1: { id: any } | undefined) => void
-        ) => {
-        try {
-            let email = profile.emails?.[0]?.value;
-
-            // fallback: manually fetch email from GitHub API
-            if (!email) {
-            const res = await fetch("https://api.github.com/user/emails", {
-                headers: {
-                Authorization: `token ${accessToken}`,
-                "User-Agent": "JiraClone",
-                Accept: "application/vnd.github.v3+json",
-                },
-            });
-
-            const emails = await res.json();
-            const primaryEmail = emails.find((e: any) => e.primary && e.verified);
-            email = primaryEmail?.email;
-            }
-
-            if (!email) return done(new Error("Email not found in GitHub profile"));
-
-            let user = await User.findOne({ email });
-
-            if (!user) {
-            user = await User.create({
-                name: profile.displayName || profile.username,
-                email,
-                password: "oauth",
-                avatar: profile.photos?.[0]?.value,
-                status: "ACTIVED",
-            });
-            }
-
-            done(null, { id: user.id });
-        } catch (err) {
-            done(err);
-        }
-        }
-    )
+  new GitHubStrategy(
+    {
+      clientID: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      callbackURL: `${process.env.SERVER_URL}/api/auth/oauth/github/callback`,
+    },
+    async (accessToken: any, _refresh: any, profile: any, done: (arg0: null, arg1: any) => void) => {
+      (profile as any).accessToken = accessToken;
+      done(null, profile);
+    }
+  )
 );
