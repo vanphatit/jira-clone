@@ -1,0 +1,56 @@
+services:
+  frontend_jira_clone:
+    build:
+      context: ./jira-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./jira-frontend:/src
+      - /src/node_modules
+    env_file:
+      - ./jira-frontend/.env.local
+    depends_on:
+      - backend_jira_clone
+    networks:
+      - jira_clone_net
+
+  backend_jira_clone:
+    build:
+      context: ./jira-backend
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./jira-backend:/src
+      - /src/node_modules
+    env_file:
+      - ./jira-backend/.env.local
+    networks:
+      - jira_clone_net 
+
+  mongo_jira_clone:
+    image: mongo
+    container_name: mongo_jira
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_jira_clone_data:/data/db
+    networks:
+      - jira_clone_net
+
+  redis_jira_clone:
+    image: redis:7-alpine
+    container_name: redis_jira
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_jira_clone_data:/data
+    networks:
+      - jira_clone_net
+
+volumes:
+  mongo_jira_clone_data:
+  redis_jira_clone_data:
+
+networks:
+  jira_clone_net:
+    driver: bridge

@@ -1,0 +1,56 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+bun.lock
+
+# Build output
+dist/
+build/
+.next/
+out/
+
+# TypeScript
+*.tsbuildinfo
+
+# Local env files
+.env
+.env.*.local
+.env.local
+
+# Logs
+logs/
+*.log
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Mac system files
+.DS_Store
+
+# Frontend specific
+jira-frontend/.next/
+jira-frontend/node_modules/
+
+# Backend specific
+jira-backend/node_modules/
+
+# Docker
+docker-compose.override.yml
+
+# Testing
+coverage/
+*.lcov
+
+# Optional: lockfiles (if you're not locking with one package manager)
+# package-lock.json
+# yarn.lock
+
