@@ -9,6 +9,8 @@ import {
 import { User } from "../models/user";
 import { redis } from "../utils/redis";
 import { generateInitialsAvatar } from "../utils/generateInitialAvatar";
+import { generate6DigitCode } from "../utils/generateCode";
+import { sendVerificationEmail } from "../utils/sendEmail";
 
 export const register = async (req: Request, res: Response) => {
   const { name, email, password, repassword } = req.body;
@@ -21,9 +23,19 @@ export const register = async (req: Request, res: Response) => {
   if (existing) return res.status(409).json({ message: "Email already used" });
 
   const hashed = await bcrypt.hash(password, 10);
-  const avatar = generateInitialsAvatar(name)
+  const code = generate6DigitCode()
 
-  const user = await User.create({ name, email, password: hashed, avatar });
+  const user = await User.create({
+    name,
+    email,
+    password: hashed,
+    avatar: generateInitialsAvatar(name),
+    status: "PENDING",
+  });
+
+  await redis.set(`verify:${email}`, code, { EX: 600 });
+  await sendVerificationEmail(email, code);
+
   res.status(201).json({ message: "User created", userId: user.id });
 };
 
@@ -102,4 +114,44 @@ export const getMe = async (req: Request, res: Response) => {
   }
 
   res.json(user);
+};
+
+export const verifyEmail = async (req: Request, res: Response) => {
+  const { email, code } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ message: "User not found" });
+  if (user.status === "ACTIVED")
+    return res.status(400).json({ message: "Already verified" });
+
+  const storedCode = await redis.get(`verify:${email}`);
+  if (!storedCode)
+    return res.status(400).json({ message: "Code expired or not found" });
+
+  if (storedCode !== code)
+    return res.status(401).json({ message: "Invalid verification code" });
+
+  user.status = "ACTIVED";
+  await user.save();
+
+  await redis.del(`verify:${email}`);
+
+  return res.json({ message: "Email verified successfully" });
+};
+
+export const resendVerificationCode = async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ message: "User not found" });
+  if (user.status === "ACTIVED")
+    return res.status(400).json({ message: "Already verified" });
+
+  const code = generate6DigitCode();
+  await redis.set(`verify:${email}`, code, { EX: 600 }); // 10 minutes
+
+  console.log(`[DEBUG] New code for ${email}: ${code}`);
+  // await sendEmail(email, code)
+
+  res.json({ message: "Verification code resent." });
 };

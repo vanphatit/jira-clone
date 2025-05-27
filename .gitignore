@@ -54,3 +54,4 @@ coverage/
 # package-lock.json
 # yarn.lock
 
+source_dump.txt

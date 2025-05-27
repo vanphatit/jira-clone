@@ -15,9 +15,11 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "@/component
 import { signUpSchema } from "../schemas";
 import { useRegister } from "../api/use-register";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export const SignUpCard = () => {
   const { mutate } = useRegister()
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -31,7 +33,10 @@ export const SignUpCard = () => {
 
   const onSubmit = (values: z.infer<typeof signUpSchema>) => {
     mutate(values, {
-      onSuccess: () => toast.success("Welcome! Your account was created successfully!"),
+      onSuccess: (_, variables) => {
+        toast.success("Account created! Please check your email.");
+        router.push(`/verify?email=${variables.email}`); // ✅ Add this
+      },
       onError: (err) => toast.error(err.message),
     });
   }

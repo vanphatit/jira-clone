@@ -2,6 +2,7 @@ services:
   frontend_jira_clone:
     build:
       context: ./jira-frontend
+    container_name: jira_clone_FE
     ports:
       - "3000:3000"
     volumes:
@@ -17,6 +18,7 @@ services:
   backend_jira_clone:
     build:
       context: ./jira-backend
+    container_name: jira_clone_BE
     ports:
       - "3001:3001"
     volumes:

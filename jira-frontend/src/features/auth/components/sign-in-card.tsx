@@ -15,10 +15,12 @@ import Link from "next/link";
 import { loginSchema } from "../schemas";
 import { useLogin } from "../api/use-login";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 
 const SignInCard = () => {
   const { mutate } = useLogin()
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -30,8 +32,11 @@ const SignInCard = () => {
 
   const onSubmit = (values: z.infer<typeof loginSchema>) => {
     mutate(values, {
-      onSuccess: () => toast.success("Welcome!"),
-      onError: (err) => toast.error(err.message),
+      onSuccess: () => {
+        toast.success("Welcome back!!!");
+        router.push(`/login`); // ✅ Add this
+      },
+      onError: (err) => toast.error(err.message)
     });
   }
 
