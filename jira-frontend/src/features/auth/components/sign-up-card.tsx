@@ -31,6 +31,14 @@ export const SignUpCard = () => {
     }
   })
 
+  const handleGoogleLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/oauth/google`;
+  };
+
+  const handleGithubLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/oauth/github`;
+  };  
+
   const onSubmit = (values: z.infer<typeof signUpSchema>) => {
     mutate(values, {
       onSuccess: (_, variables) => {
@@ -129,7 +137,7 @@ export const SignUpCard = () => {
             ></FormField>
 
             <Button disabled={false} size="lg" className="w-full">
-              Login
+              Sign Up
             </Button>
           </form>
         </Form>
@@ -141,22 +149,24 @@ export const SignUpCard = () => {
 
       <CardContent className="p-7 flex flex-col gap-y-4">
         <Button
+          onClick={handleGoogleLogin}
           disabled={false}
           variant="secondary"
           size="lg"
           className="w-full"
         >
           <FcGoogle className="mr-2 size-5" />
-          Login with Google
+          Sign up with Google
         </Button>
         <Button
+          onClick={handleGithubLogin}
           disabled={false}
           variant="secondary"
           size="lg"
           className="w-full"
         >
           <FaGithub className="mr-2 size-5" />
-          Login with GitHub
+          Sign up with GitHub
         </Button>
       </CardContent>
 

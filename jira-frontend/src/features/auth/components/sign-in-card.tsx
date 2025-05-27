@@ -30,6 +30,15 @@ const SignInCard = () => {
     },
   });
 
+  const handleGoogleLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/oauth/google`;
+  };
+
+  const handleGithubLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/oauth/github`;
+  };
+  
+
   const onSubmit = (values: z.infer<typeof loginSchema>) => {
     mutate(values, {
       onSuccess: () => {
@@ -100,6 +109,7 @@ const SignInCard = () => {
 
       <CardContent className="p-7 flex flex-col gap-y-4">
         <Button
+          onClick={handleGoogleLogin}
           disabled={false}
           variant="secondary"
           size="lg"
@@ -109,6 +119,7 @@ const SignInCard = () => {
           Login with Google
         </Button>
         <Button
+          onClick={handleGithubLogin}
           disabled={false}
           variant="secondary"
           size="lg"
