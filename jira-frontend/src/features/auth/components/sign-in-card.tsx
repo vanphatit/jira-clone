@@ -43,7 +43,7 @@ const SignInCard = () => {
     mutate(values, {
       onSuccess: () => {
         toast.success("Welcome back!!!");
-        router.push(`/dashboard`);
+        router.push(`/`);
       },
       onError: (err) => toast.error(err.message)
     });

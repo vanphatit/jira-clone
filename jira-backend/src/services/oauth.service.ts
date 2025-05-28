@@ -1,3 +1,5 @@
+import bcrypt from "bcrypt";
+
 import { User } from "../models/user";
 import { createUser, findUserByEmail } from "../repositories/user.repository";
 import { generateInitialsAvatar } from "../utils/generateInitialAvatar";
@@ -12,10 +14,12 @@ export const oauthGoogleLogin = async (profile: any) => {
   const existingUser = await findUserByEmail(email);
   if (existingUser) return existingUser;
 
+  const hashed = await bcrypt.hash("password123", 10);
+
   const newUser = await createUser({
     email,
     name: profile.displayName || "Google User",
-    password: "oauth",
+    password: hashed,
     avatar:
       profile.photos?.[0]?.value || generateInitialsAvatar(profile.displayName),
     status: "ACTIVED",
@@ -24,10 +28,7 @@ export const oauthGoogleLogin = async (profile: any) => {
   return newUser;
 };
 
-export const oauthGitHubLogin = async (
-  profile: any,
-  accessToken?: string
-) => {
+export const oauthGitHubLogin = async (profile: any, accessToken?: string) => {
   let email = profile.emails?.[0]?.value;
 
   // GitHub: if email is missing, fetch manually
@@ -48,11 +49,13 @@ export const oauthGitHubLogin = async (
 
   let user = await User.findOne({ email });
 
+  const hashed = await bcrypt.hash("password123", 10);
+
   if (!user) {
     user = await User.create({
       name: profile.displayName || profile.username || "No Name",
       email,
-      password: "oauth", // placeholder
+      password: hashed, // placeholder
       avatar:
         profile.photos?.[0]?.value ||
         generateInitialsAvatar(profile.displayName),

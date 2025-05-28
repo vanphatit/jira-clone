@@ -20,7 +20,7 @@ const VerifiedPage = () => {
       </div>
 
       <Link
-        href="/dashboard"
+        href="/"
         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-md transition-colors duration-200 mb-6 inline-block"
       >
         Continue to Dashboard

@@ -1,14 +1,13 @@
 import express from "express";
 import authRouter from "./auth";
 import oauthRouter from "./auth/oauth"
-import { requireAuth } from "../middlewares/auth.middleware";
+import projectRouter from "./project"
 
 const router = express.Router();
 
 router.use("/auth", authRouter);
 router.use("/auth/oauth", oauthRouter)
 
-// middleware to protect routes
-//router.use(requireAuth)
+router.use("/projects", projectRouter);
 
 export default router;

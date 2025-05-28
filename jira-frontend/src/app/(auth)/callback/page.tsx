@@ -19,7 +19,7 @@ export default function AuthCallback() {
         });
         const user = await res.json();
         useAuthStore.getState().setSession(token, user);      
-        router.push("/dashboard");
+        router.push("/");
       }
     };
     

@@ -3,6 +3,7 @@
 import { useAuthStore } from "@/stores/authStore";
 import Image from "next/image";
 import { useLogout } from "@/features/auth/api/use-logout";
+import { CreateProjectDialog } from "@/features/projects/components/create-project-dialog";
 
 function HomePage() {
   const user = useAuthStore((state) => state.user);
@@ -38,6 +39,8 @@ function HomePage() {
       ) : (
         <p className="text-gray-600 mb-6">Not logged in</p>
       )}
+
+      <CreateProjectDialog />
     </main>
   );
 }
