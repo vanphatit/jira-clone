@@ -1,36 +1,39 @@
 "use client";
 
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+
+import { useCreateProject } from "../api/use-create-project";
+import { createProjectSchema, CreateProjectSchema } from "../schemas";
+
+import { useAppSelector } from "@/stores/hooks";
+
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
 import {
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
+  FormControl,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
+  SelectContent,
   SelectTrigger,
   SelectValue,
-  SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-
-import { createProjectSchema, CreateProjectSchema } from "../schemas";
-import { useCreateProject } from "../api/use-create-project";
 
 export const CreateProjectDialog = ({
   onSuccess,
@@ -47,23 +50,35 @@ export const CreateProjectDialog = ({
     },
   });
 
-  const { mutateAsync, isLoading } = useCreateProject();
+  const { mutateAsync, isPending } = useCreateProject();
+  const currentWorkspaceId = useAppSelector(
+    (state) => state.workspace.currentWorkspaceId
+  );
 
   const onSubmit = async (values: CreateProjectSchema) => {
+    if (!currentWorkspaceId) {
+      toast.error("No workspace selected.");
+      return;
+    }
+
     try {
-      await mutateAsync(values);
+      await mutateAsync({
+        ...values,
+        workspaceId: currentWorkspaceId,
+      });
       toast.success("Project created!");
       setOpen(false);
+      form.reset();
       onSuccess?.();
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to create project");
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Create Project</Button>
+        <Button disabled={!currentWorkspaceId}>Create Project</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -78,13 +93,12 @@ export const CreateProjectDialog = ({
                 <FormItem>
                   <FormLabel>Project Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Website Redesign" {...field} />
+                    <Input placeholder="e.g. Billing Dashboard" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="key"
@@ -92,13 +106,12 @@ export const CreateProjectDialog = ({
                 <FormItem>
                   <FormLabel>Project Key</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. WEB" {...field} />
+                    <Input placeholder="e.g. BILL" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="template"
@@ -108,7 +121,7 @@ export const CreateProjectDialog = ({
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Choose a template" />
+                        <SelectValue placeholder="Select template" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -120,9 +133,12 @@ export const CreateProjectDialog = ({
                 </FormItem>
               )}
             />
-
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create Project"}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isPending || !currentWorkspaceId}
+            >
+              {isPending ? "Creating..." : "Create Project"}
             </Button>
           </form>
         </Form>

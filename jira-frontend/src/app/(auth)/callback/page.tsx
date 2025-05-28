@@ -2,13 +2,15 @@
 
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuthStore } from "@/stores/authStore";
 import { API_BASE_URL } from "@/lib/api";
+import { useAppDispatch } from "@/stores/hooks";
+import { setSession } from "@/stores/authSlice";
 
 export default function AuthCallback() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const authenticate = async () => {
@@ -18,13 +20,13 @@ export default function AuthCallback() {
           credentials: "include",
         });
         const user = await res.json();
-        useAuthStore.getState().setSession(token, user);      
+        dispatch(setSession({ accessToken: token, user }));
         router.push("/");
       }
     };
-    
+
     authenticate();
-  }, [token, router]);
+  }, [token, router, dispatch]);
 
   return <p className="text-center mt-10">Authenticating...</p>;
 }

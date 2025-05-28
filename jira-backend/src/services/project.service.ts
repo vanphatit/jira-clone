@@ -6,17 +6,20 @@ export const createProject = async (
     name: string;
     key: string;
     template: "SCRUM" | "KANBAN";
+    workspaceId: string;
   }
 ) => {
-  const { name, key, template } = input;
+  const { name, key, template, workspaceId } = input;
 
   const project = await Project.create({
     name,
     key,
     template,
+    workspaceId,
     owner: userId,
     members: [userId],
   });
 
   return project;
 };
+  

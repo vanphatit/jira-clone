@@ -1,16 +1,19 @@
-// src/features/auth/api/use-logout.ts
 import { useMutation } from "@tanstack/react-query";
 import { API_BASE_URL } from "@/lib/api";
-import { useAuthStore } from "@/stores/authStore";
+import { useAppDispatch } from "@/stores/hooks";
+import { clearSession } from "@/stores/authSlice";
 
 export const useLogout = () => {
+  const dispatch = useAppDispatch();
+
   return useMutation({
     mutationFn: async () => {
       await fetch(`${API_BASE_URL}/auth/sessions/logout`, {
         method: "DELETE",
         credentials: "include",
       });
-      useAuthStore.getState().clearSession()
+
+      dispatch(clearSession());
     },
   });
 };

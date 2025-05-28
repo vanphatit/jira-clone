@@ -9,8 +9,13 @@ const ProjectSchema = new mongoose.Schema(
     name: { type: String, required: true },
     key: { type: String, required: true, unique: true },
     template: { type: String, enum: ["SCRUM", "KANBAN"], required: true },
-    access: { type: String, enum: ["PRIVATE"], default: "PRIVATE" },
+    access: { type: String, enum: ["PRIVATE", "TEAM"], default: "PRIVATE" },
     type: { type: String, enum: ["TEAM_MANAGED"], default: "TEAM_MANAGED" },
+    workspaceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Workspace",
+      required: true,
+    },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -18,7 +23,8 @@ const ProjectSchema = new mongoose.Schema(
     },
     members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
-  { timestamps: true } // adds createdAt and updatedAt
+  { timestamps: true }
 );
+  
 
 export const Project = mongoose.model("Project", ProjectSchema);

@@ -1,11 +1,16 @@
+"use client";
+
 import { Navbar } from "@/components/navbar"
 import { Sidebar } from "@/components/sidebar"
+import { useAuthHydration } from "@/hooks/useAuthHydration";
 
 interface DashboardLayoutProps {
     children: React.ReactNode
 }
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+    useAuthHydration()
+
     return (
         <div className="min-h-screen">
             <div className="flex w-full h-full">

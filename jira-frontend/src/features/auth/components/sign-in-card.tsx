@@ -37,7 +37,6 @@ const SignInCard = () => {
   const handleGithubLogin = () => {
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/oauth/github`;
   };
-  
 
   const onSubmit = (values: z.infer<typeof loginSchema>) => {
     mutate(values, {

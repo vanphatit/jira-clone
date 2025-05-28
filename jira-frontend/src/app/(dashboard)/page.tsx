@@ -1,14 +1,13 @@
-"use client"
+"use client";
 
-import { useAuthStore } from "@/stores/authStore";
+import { useAppSelector } from "@/stores/hooks";
 import Image from "next/image";
 import { useLogout } from "@/features/auth/api/use-logout";
 import { CreateProjectDialog } from "@/features/projects/components/create-project-dialog";
 
 function HomePage() {
-  const user = useAuthStore((state) => state.user);
-
-  const { mutate: logout } = useLogout()
+  const user = useAppSelector((state) => state.auth.user);
+  const { mutate: logout } = useLogout();
 
   return (
     <main className="p-6">
@@ -44,4 +43,5 @@ function HomePage() {
     </main>
   );
 }
- export default HomePage;
+
+export default HomePage;
