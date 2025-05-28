@@ -1,10 +1,10 @@
-"use client";
+"use client"
 
 import { useAuthStore } from "@/stores/authStore";
 import Image from "next/image";
 import { useLogout } from "@/features/auth/api/use-logout";
 
-export default function Home() {
+function HomePage() {
   const user = useAuthStore((state) => state.user);
 
   const { mutate: logout } = useLogout()
@@ -41,3 +41,4 @@ export default function Home() {
     </main>
   );
 }
+ export default HomePage;
