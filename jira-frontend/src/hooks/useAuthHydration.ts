@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { store } from "../stores";
 import { API_BASE_URL } from "@/lib/api";
 import { toast } from "sonner";
-import { authFetch, refreshAccessToken } from "@/lib/auth-fetch";
+import { refreshAccessToken } from "@/lib/auth-fetch";
 import { setSession, clearSession } from "../stores/authSlice";
 import { fetchWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
 
@@ -14,7 +14,7 @@ export const useAuthHydration = () => {
   useEffect(() => {
     if (isHydrated) return; // Prevent multiple hydrations
     isHydrated = true; // Set hydration flag
-    
+
     const hydrate = async () => {
       const token = await refreshAccessToken();
       if (!token) {

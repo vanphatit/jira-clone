@@ -1,44 +1,24 @@
 "use client";
 
-import { useAppSelector } from "@/stores/hooks";
-import Image from "next/image";
-import { useLogout } from "@/features/auth/api/use-logout";
 import { CreateProjectDialog } from "@/features/projects/components/create-project-dialog";
+import { useAppSelector } from "@/stores/hooks";
 
 function HomePage() {
-  const user = useAppSelector((state) => state.auth.user);
-  const { mutate: logout } = useLogout();
+
+  const { workspaces, currentWorkspaceId } = useAppSelector(
+    (state) => state.workspace
+  );
+
+  const currentWorkspace = workspaces.find(
+    (w) => w._id === currentWorkspaceId
+  );
 
   return (
     <main className="p-6">
-      {user ? (
-        <>
-          <div className="mb-6 flex items-center space-x-4">
-            <Image
-              src={user.avatar}
-              alt={user.name}
-              width={48}
-              height={48}
-              className="rounded-full"
-            />
-            <div>
-              <p className="text-lg font-semibold">{user.name}</p>
-              <p className="text-sm text-gray-500">{user.email}</p>
-              <p className="text-xs text-blue-600">{user.status}</p>
-            </div>
-          </div>
-
-          <button
-            onClick={() => logout()}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium"
-          >
-            Logout
-          </button>
-        </>
-      ) : (
-        <p className="text-gray-600 mb-6">Not logged in</p>
-      )}
-
+      <h1 className="text-xl font-semibold mb-4">
+        Workspace:{" "}
+        {currentWorkspace ? currentWorkspace.name : "No workspace selected"}
+      </h1>
       <CreateProjectDialog />
     </main>
   );

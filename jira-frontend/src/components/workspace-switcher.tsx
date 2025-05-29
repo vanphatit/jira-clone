@@ -13,6 +13,7 @@ import {
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { setCurrentWorkspaceId } from "@/stores/workspacesSlice";
 import { CreateWorkspaceDialog } from "@/features/workspaces/components/create-workspace-dialog";
+import { WorkspaceAvatar } from "@/features/workspaces/components/workspace-avatar";
 
 export const WorkspaceSwitcher = () => {
   const dispatch = useAppDispatch();
@@ -42,7 +43,10 @@ export const WorkspaceSwitcher = () => {
         <SelectContent>
           {workspaces.map((w) => (
             <SelectItem key={w._id} value={w._id}>
-              {w.name}
+              <div className="flex justify-start items-center gap-3 font-medium">
+                <WorkspaceAvatar name={w.name}/>
+                <span className="truncate">{w.name}</span>
+              </div>
             </SelectItem>
           ))}
         </SelectContent>
