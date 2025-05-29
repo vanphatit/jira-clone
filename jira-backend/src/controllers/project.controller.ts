@@ -20,4 +20,28 @@ export const createProjectHandler = async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const getProjectsByWorkspaceHandler = async (
+  req: Request,
+  res: Response
+) => {
+  const userId = req.user?.userId;
+  const workspaceId = req.params.workspaceId;
+
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+  if (!workspaceId)
+    return res.status(400).json({ message: "Missing workspaceId" });
+
+  try {
+    const projects = await projectService.getProjectsByWorkspace(
+      workspaceId,
+      userId
+    );
+    res.json(projects);
+  } catch (err: any) {
+    res
+      .status(500)
+      .json({ message: err.message || "Failed to fetch projects" });
+  }
+};
   

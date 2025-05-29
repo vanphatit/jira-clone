@@ -1,4 +1,5 @@
 import { Project } from "../models/project";
+import * as projectRepo from "../repositories/project.repository";
 
 export const createProject = async (
   userId: string,
@@ -22,4 +23,10 @@ export const createProject = async (
 
   return project;
 };
-  
+
+export const getProjectsByWorkspace = async (
+  workspaceId: string,
+  userId: string
+) => {
+  return projectRepo.findProjectsByWorkspaceId(workspaceId, userId);
+};

@@ -20,4 +20,6 @@ export const fetchWorkspaces = async () => {
   if (!currentId && data.length > 0) {
     store.dispatch(setCurrentWorkspaceId(data[0]._id));
   }
+
+  return data
 };

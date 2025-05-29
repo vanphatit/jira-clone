@@ -7,13 +7,14 @@ import { toast } from "sonner";
 import { refreshAccessToken } from "@/lib/auth-fetch";
 import { setSession, clearSession } from "../stores/authSlice";
 import { fetchWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
+import { fetchProjectsByWorkspace } from "@/features/projects/api/use-get-projects";
 
 let isHydrated = false;
 
 export const useAuthHydration = () => {
   useEffect(() => {
-    if (isHydrated) return; // Prevent multiple hydrations
-    isHydrated = true; // Set hydration flag
+    if (isHydrated) return;
+    isHydrated = true;
 
     const hydrate = async () => {
       const token = await refreshAccessToken();
@@ -24,9 +25,7 @@ export const useAuthHydration = () => {
         window.location.href = "/sign-in";
         return;
       }
-      console.log("✅ Refreshed access token:", token);
 
-      // Step 2: use that token to fetch user info
       const res = await fetch(`${API_BASE_URL}/auth/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -39,12 +38,13 @@ export const useAuthHydration = () => {
       const user = await res.json();
 
       store.dispatch(setSession({ accessToken: token, user }));
-      console.log("✅ Hydrated user:", user.name);
 
-      // Step 3: Fetch workspaces after successful auth
-      console.log("Fetching workspaces after auth success...");
+      await fetchWorkspaces();
 
-      await fetchWorkspaces(); // load workspaces after auth success
+      const workspaceId = store.getState().workspace.currentWorkspaceId;
+      if (!workspaceId) return;
+
+      await fetchProjectsByWorkspace(workspaceId);
     };
     try {
       hydrate();

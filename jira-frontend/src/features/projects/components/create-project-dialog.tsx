@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -8,14 +7,13 @@ import { toast } from "sonner";
 import { useCreateProject } from "../api/use-create-project";
 import { createProjectSchema, CreateProjectSchema } from "../schemas";
 
-import { useAppSelector } from "@/stores/hooks";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  DialogTitle
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -34,13 +32,16 @@ import {
   SelectValue,
   SelectItem,
 } from "@/components/ui/select";
+import { setCurrentProjectId } from "@/stores/projectSlice";
+import { fetchProjectsByWorkspace } from "../api/use-get-projects";
 
-export const CreateProjectDialog = ({
-  onSuccess,
-}: {
-  onSuccess?: () => void;
-}) => {
-  const [open, setOpen] = useState(false);
+interface Props {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export const CreateProjectDialog = ({ open, onOpenChange } : Props ) => {
+  const dispatch = useAppDispatch();
   const form = useForm<CreateProjectSchema>({
     resolver: zodResolver(createProjectSchema),
     defaultValues: {
@@ -66,20 +67,21 @@ export const CreateProjectDialog = ({
         ...values,
         workspaceId: currentWorkspaceId,
       });
+
       toast.success("Project created!");
-      setOpen(false);
+      
+      await fetchProjectsByWorkspace(currentWorkspaceId);
+      dispatch(setCurrentProjectId(currentWorkspaceId))
+      
+      onOpenChange(false);
       form.reset();
-      onSuccess?.();
     } catch (err: any) {
       toast.error(err.message || "Failed to create project");
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button disabled={!currentWorkspaceId}>Create Project</Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create New Project</DialogTitle>

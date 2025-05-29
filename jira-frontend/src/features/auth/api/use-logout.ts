@@ -2,6 +2,8 @@ import { useMutation } from "@tanstack/react-query";
 import { API_BASE_URL } from "@/lib/api";
 import { useAppDispatch } from "@/stores/hooks";
 import { clearSession } from "@/stores/authSlice";
+import { clearProjects } from "@/stores/projectSlice";
+import { resetWorkspaces } from "@/stores/workspacesSlice";
 
 export const useLogout = () => {
   const dispatch = useAppDispatch();
@@ -14,6 +16,8 @@ export const useLogout = () => {
       });
 
       dispatch(clearSession());
+      dispatch(resetWorkspaces());
+      dispatch(clearProjects());
     },
   });
 };

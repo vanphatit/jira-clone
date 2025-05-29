@@ -1,3 +1,4 @@
+// src/stores/workspaceSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface Workspace {
@@ -10,9 +11,11 @@ interface WorkspaceState {
   currentWorkspaceId: string | null;
 }
 
+const storedWorkspaceId = localStorage.getItem("workspace.current");
+
 const initialState: WorkspaceState = {
   workspaces: [],
-  currentWorkspaceId: null,
+  currentWorkspaceId: storedWorkspaceId ?? null,
 };
 
 export const workspaceSlice = createSlice({
@@ -24,10 +27,12 @@ export const workspaceSlice = createSlice({
     },
     setCurrentWorkspaceId: (state, action: PayloadAction<string>) => {
       state.currentWorkspaceId = action.payload;
+      localStorage.setItem("workspace.current", action.payload);
     },
     resetWorkspaces: (state) => {
       state.workspaces = [];
       state.currentWorkspaceId = null;
+      localStorage.removeItem("workspace.current");
     },
   },
 });

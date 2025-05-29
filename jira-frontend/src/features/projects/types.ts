@@ -7,3 +7,13 @@ export interface CreateProjectDTO {
   key: string;
   template: ProjectTemplate;
 }
+
+export interface Project {
+  _id: string;
+  name: string;
+  description?: string;
+  workspaceId: string;
+  members: string[];
+  createdAt: string;
+  updatedAt: string;
+}

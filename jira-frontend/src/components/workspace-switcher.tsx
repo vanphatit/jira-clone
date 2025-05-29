@@ -14,6 +14,7 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { setCurrentWorkspaceId } from "@/stores/workspacesSlice";
 import { CreateWorkspaceDialog } from "@/features/workspaces/components/create-workspace-dialog";
 import { WorkspaceAvatar } from "@/features/workspaces/components/workspace-avatar";
+import { fetchProjectsByWorkspace } from "@/features/projects/api/use-get-projects";
 
 export const WorkspaceSwitcher = () => {
   const dispatch = useAppDispatch();
@@ -35,7 +36,10 @@ export const WorkspaceSwitcher = () => {
 
       <Select
         value={currentWorkspaceId ?? ""}
-        onValueChange={(val) => dispatch(setCurrentWorkspaceId(val))}
+        onValueChange={(val) => {
+          dispatch(setCurrentWorkspaceId(val))
+          fetchProjectsByWorkspace(val)
+        }}
       >
         <SelectTrigger className="w-full bg-neutral-200 font-medium p-1">
           <SelectValue placeholder="Select Workspace" />
