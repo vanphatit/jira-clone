@@ -28,6 +28,18 @@ export const getWorkspacesByUserId = async (userId: string) => {
   });
 };
 
+export const getWorkspaceMembers = async (workspaceId: string) => {
+  const workspace = await Workspace.findById(workspaceId)
+    .populate("members.userId", "name email avatar") // populate user fields if you want
+    .lean();
+
+  if (!workspace) {
+    throw new Error("Workspace not found");
+  }
+
+  return workspace.members;
+};
+
 export const updateWorkspaceById = async (
   workspaceId: string,
   userId: string,

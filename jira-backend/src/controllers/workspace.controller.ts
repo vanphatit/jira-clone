@@ -43,6 +43,21 @@ export const getWorkspacesHandler = async (req: Request, res: Response) => {
   }
 };
 
+export const getWorkspaceMembersHandler = async (
+  req: Request,
+  res: Response
+) => {
+  const workspaceId = req.params.workspaceId;
+
+  try {
+    const members = await workspaceService.getWorkspaceMembers(workspaceId);
+    return res.json(members);
+  } catch (err: any) {
+    console.error(err);
+    return res.status(400).json({ message: err.message });
+  }
+};
+
 export const updateWorkspaceHandler = async (req: Request, res: Response) => {
   const parsed = updateWorkspaceSchema.safeParse(req.body);
   if (!parsed.success) {

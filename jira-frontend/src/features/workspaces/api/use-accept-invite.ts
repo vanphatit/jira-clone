@@ -2,23 +2,22 @@ import { useMutation } from "@tanstack/react-query";
 import { API_BASE_URL } from "@/lib/api";
 import { authFetch } from "@/lib/auth-fetch";
 
-export const useInviteMember = (workspaceId: string) =>
+export const useAcceptInvite = () =>
   useMutation({
-    mutationFn: async (payload: {
-      email: string;
-      role: "MEMBER" | "ADMIN";
-    }) => {
+    mutationFn: async (params: { workspaceId: string; email: string }) => {
+      const { workspaceId, email } = params;
       const res = await authFetch(
-        `${API_BASE_URL}/workspaces/${workspaceId}/invite`,
+        `${API_BASE_URL}/workspaces/accept?workspaceId=${workspaceId}&email=${encodeURIComponent(
+          email
+        )}`,
         {
           method: "POST",
-          body: JSON.stringify(payload),
         }
       );
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.message || "Invite failed");
+        throw new Error(error.message || "Accept invite failed");
       }
 
       return res.json();

@@ -3,6 +3,7 @@ import {
     acceptInviteHandler,
     createWorkspaceHandler,
     deleteWorkspaceHandler,
+    getWorkspaceMembersHandler,
     getWorkspacesHandler,
     inviteMemberHandler,
     updateWorkspaceHandler,
@@ -13,6 +14,7 @@ const router = Router();
 
 router.post("/", requireAuth, createWorkspaceHandler);
 router.get("/", requireAuth, getWorkspacesHandler);
+router.get("/:workspaceId/members", requireAuth, getWorkspaceMembersHandler);
 router.put("/:workspaceId", requireAuth, updateWorkspaceHandler);
 router.post("/:workspaceId/invite", requireAuth, inviteMemberHandler);
 router.post("/accept", requireAuth, acceptInviteHandler);

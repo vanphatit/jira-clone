@@ -22,6 +22,8 @@ import { toast } from "sonner";
 import { fetchWorkspaces } from "../api/use-get-workspaces";
 import { useDeleteWorkspace } from "../api/use-delete-workspace";
 import { ConfirmDialog } from "@/features/projects/components/confirm-dialog";
+import { useGetMembers } from "@/features/workspaces/api/use-get-members";
+import { InviteMemberDialog } from "@/features/workspaces/components/invite-member-dialog"; // new component
 
 interface EditWorkspaceFormProps {
   initialValues?: z.infer<typeof updateWorkspaceSchema>;
@@ -35,7 +37,12 @@ export const EditWorkspaceForm = ({
     initialValues?._id || ""
   );
 
-  const { mutateAsync: deleteWorkspace, isLoading: isDeleting } = useDeleteWorkspace()
+  const { mutateAsync: deleteWorkspace, isLoading: isDeleting } =
+    useDeleteWorkspace();
+
+  const { data: members = [], refetch } = useGetMembers(
+    initialValues?._id || ""
+  );
 
   const form = useForm<z.infer<typeof updateWorkspaceSchema>>({
     resolver: zodResolver(updateWorkspaceSchema),
@@ -46,9 +53,9 @@ export const EditWorkspaceForm = ({
 
   const onSubmit = async (values: z.infer<typeof updateWorkspaceSchema>) => {
     try {
-      await updateWorkspace(values); // now it will trigger react-query cache invalidation
+      await updateWorkspace(values);
       toast.success("Workspace updated successfully!");
-      await fetchWorkspaces(); // refetch workspaces after update
+      await fetchWorkspaces();
       router.refresh();
     } catch (err: any) {
       console.error(err);
@@ -60,7 +67,7 @@ export const EditWorkspaceForm = ({
     try {
       await deleteWorkspace(initialValues?._id || "");
       toast.success("Workspace deleted successfully!");
-      await fetchWorkspaces(); // refetch workspaces after delete
+      await fetchWorkspaces();
       router.push("/");
     } catch (err: any) {
       console.error(err);
@@ -77,12 +84,12 @@ export const EditWorkspaceForm = ({
           </CardTitle>
         </CardHeader>
       </Card>
+
+      {/* Edit Workspace */}
       <Card className="w-full h-full border-none shadow-none">
         <CardContent className="p-7">
           <h3 className="font-bold">Edit Workspace</h3>
-
           <DottedSeparator className="my-4" />
-
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {/* Workspace Name */}
@@ -99,7 +106,6 @@ export const EditWorkspaceForm = ({
                   </FormItem>
                 )}
               />
-
               {/* Save Button */}
               <div className="flex justify-end">
                 <Button type="submit" disabled={form.formState.isSubmitting}>
@@ -111,6 +117,34 @@ export const EditWorkspaceForm = ({
         </CardContent>
       </Card>
 
+      {/* Members Management */}
+      <Card className="w-full h-full border-none shadow-none">
+        <CardContent className="p-7">
+          <div className="flex justify-between items-center">
+            <h3 className="font-bold mb-4">Members</h3>
+            <InviteMemberDialog workspaceId={initialValues?._id || ""} />
+          </div>
+
+          <div className="flex flex-col gap-y-4">
+            {members.map((member: any) => (
+              <div
+                key={member._id}
+                className="flex justify-between items-center"
+              >
+                <div>
+                  <div className="font-medium">{member.email}</div>
+                  <div className="text-xs text-gray-500 capitalize">
+                    {member.role} - {member.status}
+                  </div>
+                </div>
+                {/* Optional Remove Button Here */}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Danger Zone */}
       <Card className="w-full h-full border-none shadow-none">
         <CardContent className="p-7">
           <div className="flex flex-col">
