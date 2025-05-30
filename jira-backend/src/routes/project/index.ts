@@ -1,5 +1,5 @@
 import express from "express";
-import { createProjectHandler, getProjectsByWorkspaceHandler } from "../../controllers/project.controller";
+import { createProjectHandler, deleteProjectHandler, getProjectsByWorkspaceHandler, updateProjectHandler } from "../../controllers/project.controller";
 import { requireAuth } from "../../middlewares/auth.middleware";
 
 const router = express.Router();
@@ -10,5 +10,7 @@ router.get(
   requireAuth,
   getProjectsByWorkspaceHandler
 );
+router.put("/:projectId", requireAuth, updateProjectHandler);
+router.delete("/:projectId", requireAuth, deleteProjectHandler);
 
 export default router;

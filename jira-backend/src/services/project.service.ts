@@ -1,27 +1,19 @@
 import { Project } from "../models/project";
 import * as projectRepo from "../repositories/project.repository";
+import {
+  CreateProjectDTO,
+  UpdateProjectDTO,
+} from "../validators/project.validators";
 
 export const createProject = async (
-  userId: string,
-  input: {
-    name: string;
-    key: string;
-    template: "SCRUM" | "KANBAN";
-    workspaceId: string;
-  }
+  payload: CreateProjectDTO & { ownerId: string; }
 ) => {
-  const { name, key, template, workspaceId } = input;
+  payload
+  return await projectRepo.createProject(payload);
+};
 
-  const project = await Project.create({
-    name,
-    key,
-    template,
-    workspaceId,
-    owner: userId,
-    members: [userId],
-  });
-
-  return project;
+export const getProjectById = async (projectId: string) => {
+  return await projectRepo.findProjectById(projectId);
 };
 
 export const getProjectsByWorkspace = async (
@@ -29,4 +21,15 @@ export const getProjectsByWorkspace = async (
   userId: string
 ) => {
   return projectRepo.findProjectsByWorkspaceId(workspaceId, userId);
+};
+
+export const updateProject = async (
+  projectId: string,
+  payload: UpdateProjectDTO
+) => {
+  return await projectRepo.updateProjectById(projectId, payload);
+};
+
+export const deleteProject = async (projectId: string) => {
+  return await projectRepo.softDeleteProjectById(projectId);
 };

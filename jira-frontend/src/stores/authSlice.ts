@@ -15,12 +15,10 @@ interface AuthState {
   isAuthenticated: boolean;
 }
 
-const storedUser = localStorage.getItem("auth.user");
-
 const initialState: AuthState = {
-  user: storedUser ? JSON.parse(storedUser) : null,
+  user: null,
   accessToken: null,
-  isAuthenticated: !!storedUser,
+  isAuthenticated: false,
 };
 
 export const authSlice = createSlice({
@@ -35,15 +33,11 @@ export const authSlice = createSlice({
       state.accessToken = accessToken;
       state.user = user;
       state.isAuthenticated = true;
-
-      localStorage.setItem("auth.user", JSON.stringify(user));
     },
     clearSession: (state) => {
       state.user = null;
       state.accessToken = null;
       state.isAuthenticated = false;
-
-      localStorage.removeItem("auth.user");
     },
   },
 });

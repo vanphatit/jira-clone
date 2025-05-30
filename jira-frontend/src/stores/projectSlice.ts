@@ -7,11 +7,9 @@ interface ProjectState {
   currentProjectId: string | null;
 }
 
-const storedProjectId = localStorage.getItem("project.current");
-
 const initialState: ProjectState = {
   projects: [],
-  currentProjectId: storedProjectId ?? null,
+  currentProjectId: null,
 };
 
 const projectSlice = createSlice({
@@ -23,16 +21,10 @@ const projectSlice = createSlice({
     },
     setCurrentProjectId: (state, action: PayloadAction<string | null>) => {
       state.currentProjectId = action.payload;
-      if (action.payload) {
-        localStorage.setItem("project.current", action.payload);
-      } else {
-        localStorage.removeItem("project.current");
-      }
     },
     clearProjects: (state) => {
       state.projects = [];
       state.currentProjectId = null;
-      localStorage.removeItem("project.current");
     },
   },
 });

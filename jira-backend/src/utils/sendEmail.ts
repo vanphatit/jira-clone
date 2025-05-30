@@ -41,3 +41,26 @@ export const sendVerificationEmail = async (
     html,
   });
 };
+
+export const sendWorkspaceInviteEmail = async (
+  email: string,
+  inviteLink: string
+) => {
+  const html = `
+    <div style="font-family: Arial, sans-serif; padding: 20px;">
+      <h2>You're invited to join a workspace!</h2>
+      <p>Click the button below to accept the invitation:</p>
+      <a href="${inviteLink}" style="display: inline-block; padding: 10px 20px; background-color: #2563eb; color: #ffffff; text-decoration: none; border-radius: 5px;">
+        Accept Invitation
+      </a>
+      <p>This link will expire in 24 hours.</p>
+    </div>
+  `;
+
+  await resend.emails.send({
+    from: process.env.RESEND_FROM!,
+    to: email,
+    subject: "Workspace Invitation",
+    html,
+  });
+};

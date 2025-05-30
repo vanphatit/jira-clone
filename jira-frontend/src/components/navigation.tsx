@@ -5,26 +5,26 @@ import { GoCheckCircle, GoCheckCircleFill, GoHome, GoHomeFill } from "react-icon
 
 const routes = [
   {
-    label: "Home",
+    label: "Dashboard",
     href: "",
     icon: GoHome,
     activeIcon: GoHomeFill,
   },
   {
-    label: "My Tasks",
+    label: "Tasks",
     href: "/tasks",
     icon: GoCheckCircle,
     activeIcon: GoCheckCircleFill,
   },
   {
     label: "Settings",
-    href: "/settings",
+    href: "/workspace/settings",
     icon: SettingsIcon,
     activeIcon: SettingsIcon,
   },
   {
     label: "Members",
-    href: "/members",
+    href: "/workspace/members",
     icon: UsersIcon,
     activeIcon: UsersIcon,
   },

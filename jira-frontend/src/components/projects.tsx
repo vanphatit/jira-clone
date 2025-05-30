@@ -27,12 +27,12 @@ export const Projects = () => {
             </div>
 
             { projects?.map((p) => {
-                const href = `workspace/${p.workspaceId}/project/${p._id}`
+                const href = ""
                 const isActive = currentProjectId === p._id;
 
                 return (
                     <Link 
-                        href={href} 
+                        href={""} 
                         key={p._id} 
                         onClick={(e) => {
                             e.preventDefault()

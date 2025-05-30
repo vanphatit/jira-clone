@@ -1,10 +1,19 @@
-import express from "express";
-import { createWorkspaceHandler, getWorkspacesHandler } from "../../controllers/workspace.controller";
+import { Router } from "express";
+import {
+    acceptInviteHandler,
+    createWorkspaceHandler,
+    getWorkspacesHandler,
+    inviteMemberHandler,
+    updateWorkspaceHandler,
+} from "../../controllers/workspace.controller";
 import { requireAuth } from "../../middlewares/auth.middleware";
 
-const router = express.Router();
+const router = Router();
 
-router.get("/", requireAuth, getWorkspacesHandler);
 router.post("/", requireAuth, createWorkspaceHandler);
+router.get("/", requireAuth, getWorkspacesHandler);
+router.put("/:workspaceId", requireAuth, updateWorkspaceHandler);
+router.post("/:workspaceId/invite", requireAuth, inviteMemberHandler);
+router.post("/accept", requireAuth, acceptInviteHandler);
 
 export default router;

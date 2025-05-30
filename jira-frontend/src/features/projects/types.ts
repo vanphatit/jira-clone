@@ -13,7 +13,7 @@ export interface Project {
   name: string;
   description?: string;
   workspaceId: string;
-  members: string[];
+  members: { userId: string; email: string }[];
   createdAt: string;
   updatedAt: string;
 }

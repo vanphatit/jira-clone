@@ -4,11 +4,29 @@ export type ProjectTemplate = "SCRUM" | "KANBAN";
 export type ProjectAccess = "PRIVATE";
 export type ProjectType = "TEAM_MANAGED";
 
+export interface IProject extends Document {
+  name: string;
+  key: string;
+  workspaceId: mongoose.Types.ObjectId;
+  owner: mongoose.Types.ObjectId; // owner userId
+  members: {
+    userId: string;
+    email: string;
+    role: "MEMBER" | "ADMIN";
+  }[];
+  deleted: boolean;
+}
+
 const ProjectSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     key: { type: String, required: true, unique: true },
-    template: { type: String, enum: ["SCRUM", "KANBAN"], required: true },
+    template: {
+      type: String,
+      enum: ["SCRUM", "KANBAN"],
+      default: "KANBAN",
+      required: true,
+    },
     access: { type: String, enum: ["PRIVATE", "TEAM"], default: "PRIVATE" },
     type: { type: String, enum: ["TEAM_MANAGED"], default: "TEAM_MANAGED" },
     workspaceId: {
@@ -21,10 +39,17 @@ const ProjectSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    members: [
+      {
+        userId: { type: String, required: true },
+        email: { type: String, required: true },
+        role: { type: String, enum: ["MEMBER", "ADMIN"], default: "MEMBER" },
+      },
+    ],
+    deleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
   
 
-export const Project = mongoose.model("Project", ProjectSchema);
+export const Project = mongoose.model<IProject>("Project", ProjectSchema);

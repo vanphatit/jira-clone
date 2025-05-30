@@ -1,14 +1,22 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const WorkspaceSchema = new mongoose.Schema(
+const WorkspaceSchema = new Schema(
   {
     name: { type: String, required: true },
-    owner: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    members: [
+      {
+        userId: { type: Schema.Types.ObjectId, ref: "User" }, // optional
+        email: { type: String, required: true },
+        role: { type: String, enum: ["ADMIN", "MEMBER"], default: "MEMBER" },
+        status: {
+          type: String,
+          enum: ["PENDING", "JOINED"],
+          default: "PENDING",
+        },
+      },
+    ],
+    deleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
