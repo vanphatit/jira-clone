@@ -84,3 +84,14 @@ export const softDeleteWorkspaceById = async (workspaceId: string) => {
     { new: true }
   );
 };
+
+export const removeWorkspaceMember = async (
+  workspaceId: string,
+  userId: string
+) => {
+  return Workspace.findByIdAndUpdate(
+    workspaceId,
+    { $pull: { members: { userId } } },
+    { new: true }
+  );
+};

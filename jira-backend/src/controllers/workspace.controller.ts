@@ -175,3 +175,24 @@ export const deleteWorkspaceHandler = async (req: Request, res: Response) => {
     return res.status(400).json({ message: err.message });
   }
 };
+
+export const removeMemberHandler = async (req: Request, res: Response) => {
+  const workspaceId = req.params.workspaceId;
+  const userIdToRemove = req.params.userId;
+  const currentUserId = req.user?.userId;
+
+  if (!workspaceId || !userIdToRemove) {
+    return res.status(400).json({ message: "Invalid request" });
+  }
+
+  try {
+    await workspaceService.removeMember(
+      workspaceId,
+      userIdToRemove,
+      currentUserId
+    );
+    return res.status(200).json({ message: "Member removed successfully" });
+  } catch (err: any) {
+    return res.status(400).json({ message: err.message });
+  }
+};

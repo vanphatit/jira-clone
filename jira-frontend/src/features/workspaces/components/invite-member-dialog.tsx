@@ -23,6 +23,7 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
+import { PlusIcon, UserPlus } from "lucide-react";
 
 const inviteMemberSchema = z.object({
   email: z.string().email(),
@@ -59,6 +60,7 @@ export const InviteMemberDialog = ({
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
+          <UserPlus className="mr-2 h-4 w-4" />
           Invite Member
         </Button>
       </DialogTrigger>

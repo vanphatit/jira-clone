@@ -6,6 +6,7 @@ import {
     getWorkspaceMembersHandler,
     getWorkspacesHandler,
     inviteMemberHandler,
+    removeMemberHandler,
     updateWorkspaceHandler,
 } from "../../controllers/workspace.controller";
 import { requireAuth } from "../../middlewares/auth.middleware";
@@ -19,5 +20,6 @@ router.put("/:workspaceId", requireAuth, updateWorkspaceHandler);
 router.post("/:workspaceId/invite", requireAuth, inviteMemberHandler);
 router.post("/accept", requireAuth, acceptInviteHandler);
 router.delete("/:workspaceId", requireAuth, deleteWorkspaceHandler);
+router.delete("/:workspaceId/members/:userId", requireAuth, removeMemberHandler);
 
 export default router;

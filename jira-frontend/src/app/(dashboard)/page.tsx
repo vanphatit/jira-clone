@@ -1,6 +1,5 @@
 "use client";
 
-import { CreateProjectDialog } from "@/features/projects/components/create-project-dialog";
 import { useAppSelector } from "@/stores/hooks";
 
 function HomePage() {

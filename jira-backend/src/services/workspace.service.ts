@@ -76,3 +76,28 @@ export const deleteWorkspace = async (workspaceId: string, userId: string) => {
 
   return workspaceRepo.softDeleteWorkspaceById(workspaceId);
 };
+
+export const removeMember = async (
+  workspaceId: string,
+  userId: string,
+  currentUserId: string
+) => {
+  const workspace = await Workspace.findById(workspaceId);
+
+  if (!workspace) throw new Error("Workspace not found");
+
+  // Check if current user is ADMIN
+  const currentUserMember = workspace.members.find(
+    (m) => m.userId.toString() === currentUserId
+  );
+  if (!currentUserMember || currentUserMember.role !== "ADMIN") {
+    throw new Error("Only Admins can remove members");
+  }
+
+  // Admins can't remove themselves
+  if (userId === currentUserId) {
+    throw new Error("You cannot remove yourself");
+  }
+
+  return await workspaceRepo.removeWorkspaceMember(workspaceId, userId);
+};

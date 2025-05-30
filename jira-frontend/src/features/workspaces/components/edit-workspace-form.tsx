@@ -23,11 +23,31 @@ import { fetchWorkspaces } from "../api/use-get-workspaces";
 import { useDeleteWorkspace } from "../api/use-delete-workspace";
 import { ConfirmDialog } from "@/features/projects/components/confirm-dialog";
 import { useGetMembers } from "@/features/workspaces/api/use-get-members";
-import { InviteMemberDialog } from "@/features/workspaces/components/invite-member-dialog"; // new component
+import { InviteMemberDialog } from "@/features/workspaces/components/invite-member-dialog";
+import Image from "next/image";
+import { useRemoveMember } from "../api/use-remove-member";
+import { useAppSelector } from "@/stores/hooks"; // get current user id from redux
 
 interface EditWorkspaceFormProps {
   initialValues?: z.infer<typeof updateWorkspaceSchema>;
 }
+
+// 🎨 Badge component
+const Badge = ({
+  text,
+  color,
+}: {
+  text: string;
+  color: "blue" | "gray" | "orange";
+}) => {
+  const base = "inline-flex px-2 py-1 text-xs font-medium rounded-full";
+  const colors = {
+    blue: "bg-blue-100 text-blue-700",
+    gray: "bg-gray-100 text-gray-700",
+    orange: "bg-orange-100 text-orange-700",
+  };
+  return <span className={`${base} ${colors[color]}`}>{text}</span>;
+};
 
 export const EditWorkspaceForm = ({
   initialValues,
@@ -36,13 +56,28 @@ export const EditWorkspaceForm = ({
   const { mutateAsync: updateWorkspace } = useUpdateWorkspace(
     initialValues?._id || ""
   );
-
   const { mutateAsync: deleteWorkspace, isLoading: isDeleting } =
     useDeleteWorkspace();
-
   const { data: members = [], refetch } = useGetMembers(
     initialValues?._id || ""
   );
+  const { mutateAsync: removeMember } = useRemoveMember();
+  const currentUser = useAppSelector((state) => state.auth.user); // current user from redux
+
+  const handleRemoveMember = async (userId: string) => {
+    try {
+      if (currentUser?.id === userId) {
+        toast.error("You cannot remove yourself!");
+        return;
+      }
+      await removeMember({ workspaceId: initialValues?._id || "", userId });
+      toast.success("Member removed successfully!");
+      refetch(); // refresh member list
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to remove member");
+    }
+  };
 
   const form = useForm<z.infer<typeof updateWorkspaceSchema>>({
     resolver: zodResolver(updateWorkspaceSchema),
@@ -92,7 +127,6 @@ export const EditWorkspaceForm = ({
           <DottedSeparator className="my-4" />
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Workspace Name */}
               <FormField
                 control={form.control}
                 name="name"
@@ -125,19 +159,63 @@ export const EditWorkspaceForm = ({
             <InviteMemberDialog workspaceId={initialValues?._id || ""} />
           </div>
 
-          <div className="flex flex-col gap-y-4">
-            {members.map((member: any) => (
+          {/* Grid of Member Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+            {members.map((member: unknown) => (
               <div
                 key={member._id}
-                className="flex justify-between items-center"
+                className="relative group flex flex-col items-center gap-y-3 p-6 border rounded-lg shadow-sm hover:shadow-md transition"
               >
-                <div>
-                  <div className="font-medium">{member.email}</div>
-                  <div className="text-xs text-gray-500 capitalize">
-                    {member.role} - {member.status}
+                {/* Remove Button */}
+                {currentUser?.id !== member.userId?._id && (
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
+                    <ConfirmDialog
+                      title="Remove Member"
+                      description={`Are you sure you want to remove ${
+                        member.userId?.name || "this user"
+                      }?`}
+                      onConfirm={() => handleRemoveMember(member.userId._id)}
+                    >
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        className="w-8 h-8 p-0 rounded-full"
+                      >
+                        ✕
+                      </Button>
+                    </ConfirmDialog>
                   </div>
+                )}
+
+                {member.userId?.avatar ? (
+                  <Image
+                    src={member.userId.avatar}
+                    alt={member.userId.name || "Avatar"}
+                    width={74}
+                    height={74}
+                    className="w-20 h-20 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-semibold">
+                    {member.userId?.name?.charAt(0).toUpperCase() || "U"}
+                  </div>
+                )}
+
+                <p className="text-base pt-3 font-semibold">
+                  {member.userId?.name || "Unknown"}
+                </p>
+                <div className="text-sm text-gray-500">
+                  {member.userId?.email}
                 </div>
-                {/* Optional Remove Button Here */}
+
+                {/* Role Badge */}
+                {member.status !== "JOINED" ? (
+                  <Badge text="Pending" color="orange" />
+                ) : member.role === "ADMIN" ? (
+                  <Badge text="Admin" color="blue" />
+                ) : (
+                  <Badge text="Member" color="gray" />
+                )}
               </div>
             ))}
           </div>
