@@ -9,11 +9,13 @@ export const Navbar = () => {
       const currentProject = projects.find(
         (p) => p._id === currentProjectId
       );
+
+      const title = currentProject?.name || "Dashboard";
       
     return (
         <nav className="pt-4 px-6 flex items-center justify-between">
             <div className="flex-col hidden lg:flex">
-                <h1 className="text-2xl font-semibold">{currentProject?.name} - Dashboard</h1>
+                <h1 className="text-2xl font-semibold">{title}</h1>
                 <p className="text-muted-foreground">Monitor all of your projects and tasks</p>
             </div>
             <UserButton />

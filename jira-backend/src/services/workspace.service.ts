@@ -1,3 +1,4 @@
+import { Workspace } from "../models/workspace";
 import { findUserById } from "../repositories/user.repository";
 import * as workspaceRepo from "../repositories/workspace.repository";
 import { sendWorkspaceInviteEmail } from "../utils/sendEmail";
@@ -39,4 +40,19 @@ export const inviteMember = async (
   await sendWorkspaceInviteEmail(email, inviteLink);
 
   return { message: "Invitation sent successfully" };
+};
+
+export const deleteWorkspace = async (workspaceId: string, userId: string) => {
+  const workspace = await Workspace.findOne({
+    _id: workspaceId,
+    deleted: false,
+  });
+
+  if (!workspace) throw new Error("Workspace not found or already deleted");
+
+  if (workspace.owner.toString() !== userId) {
+    throw new Error("Only owner can delete the workspace");
+  }
+
+  return workspaceRepo.softDeleteWorkspaceById(workspaceId);
 };

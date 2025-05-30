@@ -26,6 +26,7 @@ import { createWorkspaceSchema, CreateWorkspaceSchema } from "../schemas";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { setWorkspaces, setCurrentWorkspaceId } from "@/stores/workspacesSlice";
+import { fetchWorkspaces } from "../api/use-get-workspaces";
 
 interface Props {
   open: boolean;
@@ -50,6 +51,8 @@ export const CreateWorkspaceDialog = ({ open, onOpenChange }: Props) => {
       toast.success("Workspace created");
       onOpenChange(false);
       form.reset();
+      await fetchWorkspaces()
+      window.location.reload(); // reload to reflect changes
     } catch (err: any) {
       toast.error(err.message || "Failed to create workspace");
     }

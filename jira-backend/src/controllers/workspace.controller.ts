@@ -144,3 +144,19 @@ export const acceptInviteHandler = async (req: Request, res: Response) => {
 
   return res.status(200).json({ message: "Successfully joined workspace" });
 };
+
+export const deleteWorkspaceHandler = async (req: Request, res: Response) => {
+  const workspaceId = req.params.workspaceId;
+  const userId = req.user?.userId;
+
+  if (!workspaceId)
+    return res.status(400).json({ message: "Workspace ID required" });
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+  try {
+    await workspaceService.deleteWorkspace(workspaceId, userId);
+    return res.status(204).send(); // No content
+  } catch (err: any) {
+    return res.status(400).json({ message: err.message });
+  }
+};

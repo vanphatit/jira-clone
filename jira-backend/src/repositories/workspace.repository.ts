@@ -64,3 +64,11 @@ export const deleteInvite = async (workspaceId: string, email: string) => {
   const key = `invite:${workspaceId}:${email}`;
   await redis.del(key);
 };
+
+export const softDeleteWorkspaceById = async (workspaceId: string) => {
+  return Workspace.findByIdAndUpdate(
+    workspaceId,
+    { deleted: true },
+    { new: true }
+  );
+};

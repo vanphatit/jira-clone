@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
     acceptInviteHandler,
     createWorkspaceHandler,
+    deleteWorkspaceHandler,
     getWorkspacesHandler,
     inviteMemberHandler,
     updateWorkspaceHandler,
@@ -15,5 +16,6 @@ router.get("/", requireAuth, getWorkspacesHandler);
 router.put("/:workspaceId", requireAuth, updateWorkspaceHandler);
 router.post("/:workspaceId/invite", requireAuth, inviteMemberHandler);
 router.post("/accept", requireAuth, acceptInviteHandler);
+router.delete("/:workspaceId", requireAuth, deleteWorkspaceHandler);
 
 export default router;

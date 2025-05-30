@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { useUpdateWorkspace } from "../api/use-edit-workspace";
 import { toast } from "sonner";
 import { fetchWorkspaces } from "../api/use-get-workspaces";
+import { useDeleteWorkspace } from "../api/use-delete-workspace";
+import { ConfirmDialog } from "@/features/projects/components/confirm-dialog";
 
 interface EditWorkspaceFormProps {
   initialValues?: z.infer<typeof updateWorkspaceSchema>;
@@ -32,6 +34,8 @@ export const EditWorkspaceForm = ({
   const { mutateAsync: updateWorkspace } = useUpdateWorkspace(
     initialValues?._id || ""
   );
+
+  const { mutateAsync: deleteWorkspace, isLoading: isDeleting } = useDeleteWorkspace()
 
   const form = useForm<z.infer<typeof updateWorkspaceSchema>>({
     resolver: zodResolver(updateWorkspaceSchema),
@@ -49,6 +53,18 @@ export const EditWorkspaceForm = ({
     } catch (err: any) {
       console.error(err);
       toast.error(err.message || "Failed to update workspace");
+    }
+  };
+
+  const handleDeleteWorkspace = async () => {
+    try {
+      await deleteWorkspace(initialValues?._id || "");
+      toast.success("Workspace deleted successfully!");
+      await fetchWorkspaces(); // refetch workspaces after delete
+      router.push("/");
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to delete workspace");
     }
   };
 
@@ -103,16 +119,21 @@ export const EditWorkspaceForm = ({
               This section allows you to delete your workspace. Please proceed
               with caution as this action cannot be undone.
             </p>
-            <Button
-              className="mt-6 w-fit ml-auto"
-              size="sm"
-              variant="destructive"
-              type="button"
-              disabled={form.formState.isSubmitting}
-              onClick={() => {}}
+            <ConfirmDialog
+              title="Delete Workspace"
+              description="Are you sure you want to delete this workspace? This action cannot be undone."
+              onConfirm={handleDeleteWorkspace}
             >
-              Delete Workspace
-            </Button>
+              <Button
+                className="mt-6 w-fit ml-auto"
+                size="sm"
+                variant="destructive"
+                type="button"
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete Workspace"}
+              </Button>
+            </ConfirmDialog>
           </div>
         </CardContent>
       </Card>
