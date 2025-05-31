@@ -32,11 +32,9 @@ export const Projects = () => {
 
                 return (
                     <Link 
-                        href={""} 
+                        href={"/tasks"} 
                         key={p._id} 
                         onClick={(e) => {
-                            e.preventDefault()
-                            
                             if (isActive) return
 
                             dispatch(setCurrentProjectId(p._id))

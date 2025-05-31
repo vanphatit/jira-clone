@@ -1,18 +1,20 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 export type ProjectTemplate = "SCRUM" | "KANBAN";
 export type ProjectAccess = "PRIVATE";
-export type ProjectType = "TEAM_MANAGED";
+export type ProjectType = "TEAM_MANAGED" | "WORKSPACE_MANAGED";
 
 export interface IProject extends Document {
   name: string;
   key: string;
+  type: ProjectType;
   workspaceId: mongoose.Types.ObjectId;
   owner: mongoose.Types.ObjectId; // owner userId
   members: {
     userId: string;
     email: string;
     role: "MEMBER" | "ADMIN";
+    status: "PENDING" | "JOINED";
   }[];
   deleted: boolean;
 }
@@ -28,7 +30,11 @@ const ProjectSchema = new mongoose.Schema(
       required: true,
     },
     access: { type: String, enum: ["PRIVATE", "TEAM"], default: "PRIVATE" },
-    type: { type: String, enum: ["TEAM_MANAGED"], default: "TEAM_MANAGED" },
+    type: {
+      type: String,
+      enum: ["TEAM_MANAGED", "WORKSPACE_MANAGED"],
+      default: "TEAM_MANAGED",
+    },
     workspaceId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Workspace",
@@ -41,9 +47,14 @@ const ProjectSchema = new mongoose.Schema(
     },
     members: [
       {
-        userId: { type: String, required: true },
+        userId: { type: Schema.Types.ObjectId, ref: "User" }, // optional
         email: { type: String, required: true },
-        role: { type: String, enum: ["MEMBER", "ADMIN"], default: "MEMBER" },
+        role: { type: String, enum: ["ADMIN", "MEMBER"], default: "MEMBER" },
+        status: {
+          type: String,
+          enum: ["PENDING", "JOINED"],
+          default: "PENDING",
+        },
       },
     ],
     deleted: { type: Boolean, default: false },

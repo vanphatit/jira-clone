@@ -4,13 +4,13 @@ import { useAppSelector } from "@/stores/hooks";
 
 export const Navbar = () => {
     
-      const { projects, currentProjectId} = useAppSelector((state) => state.project);
+      const { workspaces, currentWorkspaceId} = useAppSelector((state) => state.workspace);
     
-      const currentProject = projects.find(
-        (p) => p._id === currentProjectId
+      const currentWorkspace = workspaces.find(
+        (p) => p._id === currentWorkspaceId
       );
 
-      const title = currentProject?.name || "Dashboard";
+      const title = currentWorkspace?.name + " | Workspace" || "Dashboard";
       
     return (
         <nav className="pt-4 px-6 flex items-center justify-between">

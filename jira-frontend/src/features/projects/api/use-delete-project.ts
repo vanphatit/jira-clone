@@ -14,6 +14,6 @@ export const useDeleteProject = () =>
         throw new Error(error.message || "Delete failed");
       }
 
-      return res.json(); // or return `true` if no content (204)
+      return true; // or return `true` if no content (204)
     },
   });

@@ -1,23 +1,12 @@
-import { useMutation } from "@tanstack/react-query";
-import { UpdateProjectSchema } from "../schemas";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_BASE_URL } from "@/lib/api";
 import { authFetch } from "@/lib/auth-fetch";
 
-export const useUpdateProject = () =>
-  useMutation({
-    mutationFn: async ({
-      projectId,
-      payload,
-    }: {
-      projectId: string;
-      payload: UpdateProjectSchema;
-    }) => {
-      console.log(
-        "Updating project with ID:",
-        projectId,
-        "and payload:",
-        payload
-      );
+export const useUpdateProject = (projectId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: { name: string }) => {
       const res = await authFetch(`${API_BASE_URL}/projects/${projectId}`, {
         method: "PUT",
         body: JSON.stringify(payload),
@@ -30,4 +19,9 @@ export const useUpdateProject = () =>
 
       return res.json();
     },
+    onSuccess: () => {
+      // Invalidate projects query
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+    },
   });
+};

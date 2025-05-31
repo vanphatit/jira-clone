@@ -47,7 +47,7 @@ export const CreateProjectDialog = ({ open, onOpenChange } : Props ) => {
     defaultValues: {
       name: "",
       key: "",
-      template: "SCRUM",
+      type: "WORKSPACE_MANAGED", // Default type
     },
   });
 
@@ -116,19 +116,19 @@ export const CreateProjectDialog = ({ open, onOpenChange } : Props ) => {
             />
             <FormField
               control={form.control}
-              name="template"
+              name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Template</FormLabel>
+                  <FormLabel>Type</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select template" />
+                        <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="SCRUM">Scrum</SelectItem>
-                      <SelectItem value="KANBAN">Kanban</SelectItem>
+                      <SelectItem value="TEAM_MANAGED">Team Management</SelectItem>
+                      <SelectItem value="WORKSPACE_MANAGED">Workspace Management</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

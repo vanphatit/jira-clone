@@ -1,11 +1,11 @@
 export type ProjectAccess = "PRIVATE";
-export type ProjectType = "TEAM_MANAGED";
+export type ProjectType = "TEAM_MANAGED" | "WORKSPACE_MANAGED";
 export type ProjectTemplate = "SCRUM" | "KANBAN";
 
 export interface CreateProjectDTO {
   name: string;
   key: string;
-  template: ProjectTemplate;
+  type: ProjectType;
 }
 
 export interface Project {
