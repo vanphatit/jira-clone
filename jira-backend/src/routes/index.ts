@@ -12,6 +12,6 @@ router.use("/auth/oauth", oauthRouter)
 
 router.use("/workspaces", workspaceRouter);
 router.use("/projects", projectRouter);
-router.use("tasks", taskRouter);
+router.use("/tasks", taskRouter);
 
 export default router;

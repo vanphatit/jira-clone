@@ -4,6 +4,7 @@ import * as taskService from "../services/task.service";
 
 export const createTaskHandler = async (req: Request, res: Response) => {
   const result = createTaskSchema.safeParse(req.body);
+  console.log("Create Task Result:", result);
   if (!result.success) {
     return res
       .status(400)

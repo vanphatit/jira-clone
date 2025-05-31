@@ -4,7 +4,6 @@ import { authFetch } from "@/lib/auth-fetch";
 import { API_BASE_URL } from "@/lib/api";
 
 export const useCreateTask = (projectId: string) => {
-  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (payload: CreateTaskSchema) => {
@@ -12,10 +11,12 @@ export const useCreateTask = (projectId: string) => {
         method: "POST",
         body: JSON.stringify(payload),
       });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to create task");
+      }
+
       return res;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["tasks", projectId]);
     },
   });
 };

@@ -11,22 +11,26 @@ export interface ITask extends Document {
   position: number;
 }
 
-const TaskSchema: Schema = new Schema(
+const taskSchema = new Schema(
   {
     name: { type: String, required: true },
-    workspaceId: { type: String, required: true },
-    projectId: { type: String, required: true },
-    assigneeId: { type: String, required: true },
     description: { type: String },
-    dueDate: { type: Date, required: true },
+    dueDate: { type: Date },
     status: {
       type: String,
-      enum: ["BACKLOG", "TODO", "IN_PROGRESS", "IN_REVIEW", "DONE"],
-      default: "BACKLOG",
+      enum: ["TODO", "IN_PROGRESS", "DONE"],
+      default: "TODO",
     },
-    position: { type: Number, required: true },
+    position: { type: Number, default: 0 },
+    projectId: { type: Schema.Types.ObjectId, ref: "Project", required: true },
+    workspaceId: {
+      type: Schema.Types.ObjectId,
+      ref: "Workspace",
+      required: true,
+    },
+    assigneeIds: [{ type: Schema.Types.ObjectId, ref: "User" }], // ⬅️ ARRAY!
   },
   { timestamps: true }
 );
 
-export const Task = mongoose.model<ITask>("Task", TaskSchema);
+export const Task = mongoose.model<ITask>("Task", taskSchema);
