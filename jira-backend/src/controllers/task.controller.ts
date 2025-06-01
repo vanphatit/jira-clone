@@ -41,3 +41,33 @@ export const getTasksByProjectHandler = async (req: Request, res: Response) => {
   const tasks = await taskService.getTasksByProject(projectId, filters);
   res.json(tasks);
 };
+
+export const updateTaskHandler = async (req: Request, res: Response) => {
+  const { taskId } = req.params;
+  const updateData = req.body; // Expect { status, position, ... }
+
+  if (!taskId) {
+    return res.status(400).json({ message: "Task ID is required" });
+  }
+
+  const updatedTask = await taskService.updateTaskService(taskId, updateData);
+
+  if (!updatedTask) {
+    return res.status(404).json({ message: "Task not found" });
+  }
+
+  res.status(200).json(updatedTask);
+};
+
+
+export const deleteTaskHandler = async (req: Request, res: Response) => {
+  const { taskId } = req.params;
+
+  if (!taskId) {
+    return res.status(400).json({ message: "Task ID is required" });
+  }
+
+  await taskService.deleteTaskService(taskId);
+
+  res.status(200).json({ message: "Task deleted successfully" });
+};

@@ -1,4 +1,4 @@
-import { Task } from "../models/tasks";
+import { ITask, Task } from "../models/tasks";
 import { CreateTaskDTO } from "../validators/task.validators";
 
 export const createTask = async (data: CreateTaskDTO) => {
@@ -41,9 +41,14 @@ export const findTasksByProjectId = async (
 };
 
 export const updateStatus = async (taskId: string, status: string) => {
-  return await Task.findByIdAndUpdate(
-    taskId,
-    { status },
-    { new: true }
-  );
+  return await Task.findByIdAndUpdate(taskId, { status }, { new: true });
+};
+
+export const updateTask = async (taskId: string, update: Partial<ITask>) => {
+  return Task.findByIdAndUpdate(taskId, update, { new: true });
+};
+
+
+export const deleteTask = async (taskId: string) => {
+  return Task.findByIdAndDelete(taskId);
 };

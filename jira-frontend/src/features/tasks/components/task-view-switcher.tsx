@@ -13,21 +13,22 @@ import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { TaskTableContext } from "./task-table-context";
 import { useGetMembers } from "@/features/projects/api/use-get-members";
+import { DataKanban } from "./data-kanban";
+import { useState } from "react";
+import { TaskStatus } from "../types";
 
 export const TaskViewSwitcher = () => {
+  const [open, setOpen] = useState(false);
+  const [initialStatus, setInitialStatus] = useState<TaskStatus>(
+    TaskStatus.BACKLOG
+  );
+
   const currentProjectId = useSelector(
     (s: RootState) => s.project.currentProjectId
   )!;
   const currentWorkspaceId = useSelector(
     (s: RootState) => s.workspace.currentWorkspaceId
   )!;
-  if (!currentProjectId) {
-    return (
-      <div className="w-full h-full flex items-center justify-center">
-        <p className="text-gray-500">Please select a project to view tasks.</p>
-      </div>
-    );
-  }
 
   const { data: members = [] } = useGetMembers(currentProjectId || "");
 
@@ -49,8 +50,16 @@ export const TaskViewSwitcher = () => {
     direction,
   });
 
+  if (!currentProjectId) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <p className="text-gray-500">Please select a project to view tasks.</p>
+      </div>
+    );
+  }
+
   return (
-    <Tabs className="flex-1 w-full border rounded-lg" defaultValue="table">
+    <Tabs className="flex-1 w-full border rounded-lg" defaultValue="kanban">
       <div className="h-full flex flex-col overflow-auto p-4">
         <div className="flex flex-col gap-y-2 lg:flex-row justify-between items-center">
           <TabsList className="h-8 w-full lg:w-auto">
@@ -64,7 +73,11 @@ export const TaskViewSwitcher = () => {
               Calendar
             </TabsTrigger>
           </TabsList>
-          <CreateTaskDialog />
+          <CreateTaskDialog
+            open={open}
+            setOpen={setOpen}
+            initialStatus={initialStatus}
+          />
         </div>
         <DottedSeparator className="my-4" />
         <DataFilters />
@@ -87,7 +100,13 @@ export const TaskViewSwitcher = () => {
               )}
             </TabsContent>
             <TabsContent value="kanban" className="mt-0">
-              Data kanban
+              <TaskTableContext.Provider value={{ members }}>
+                <DataKanban
+                  data={tasks}
+                  setOpen={setOpen}
+                  setInitialStatus={setInitialStatus}
+                />
+              </TaskTableContext.Provider>
             </TabsContent>
             <TabsContent value="calendar" className="mt-0">
               Data calendar

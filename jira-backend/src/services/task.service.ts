@@ -1,3 +1,4 @@
+import { ITask } from "../models/tasks";
 import * as taskRepo from "../repositories/task.repository";
 import { CreateTaskDTO } from "../validators/task.validators";
 
@@ -38,8 +39,19 @@ export const getTasksByProject = async (
   tasks.forEach((task) => {
     if (task.dueDate && task.dueDate < now && task.status !== "DONE") {
       task.status = "OVERDUE";
-      taskRepo.updateStatus(task._id as string, "OVERDUE")
+      taskRepo.updateStatus(task._id as string, "OVERDUE");
     }
-  })
+  });
   return tasks;
+};
+
+export const updateTaskService = async (
+  taskId: string,
+  update: Partial<ITask>
+) => {
+  return taskRepo.updateTask(taskId, update);
+};
+
+export const deleteTaskService = async (taskId: string) => {
+  return taskRepo.deleteTask(taskId);
 };

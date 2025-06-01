@@ -3,12 +3,13 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Task } from "../types";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, MoreVertical } from "lucide-react";
 import { TaskDate } from "./task-date";
 import { Badge } from "@/components/ui/badge";
 import { snakeCaseToTitleCase } from "@/lib/utils";
 import { useTaskTable } from "./task-table-context"; // <-- Import Context
 import Image from "next/image";
+import { TaskActions } from "./take-actions";
 
 export const columns: ColumnDef<Task>[] = [
   {
@@ -148,4 +149,19 @@ export const columns: ColumnDef<Task>[] = [
       );
     },
   },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const id = row.original._id
+      const projectId = row.original.projectId;
+
+      return (
+        <TaskActions id={id} projectId={projectId}>
+          <Button variant="ghost" className="size-8 p-0">
+            <MoreVertical className="size-4"/>
+          </Button>
+        </TaskActions>
+      )
+    }
+  }
 ];

@@ -33,9 +33,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { MultiSelectCombobox } from "@/components/multi-select-combobox";
 import { toast } from "sonner";
 import { TaskStatus } from "../types";
+import { useQueryClient } from "@tanstack/react-query";
 
-export const CreateTaskDialog = () => {
-  const [open, setOpen] = useState(false);
+interface CreateTaskDialogProps {
+  open?: boolean;
+  setOpen?: (open: boolean) => void;
+  initialStatus?: TaskStatus;
+}
+
+export const CreateTaskDialog = ({open, setOpen, initialStatus} : CreateTaskDialogProps) => {
+  const queryClient = useQueryClient();
 
   const currentProjectId = useSelector(
     (s: RootState) => s.project.currentProjectId
@@ -60,7 +67,7 @@ export const CreateTaskDialog = () => {
       dueDate: "",
       ownerId: currentUserId,
       position: 0,
-      status: TaskStatus.BACKLOG, // Default status
+      status: initialStatus, // Default status
       projectId: currentProjectId,
       workspaceId: currentWorkspaceId,
       assigneeIds: [], // ⬅️ Array
@@ -71,10 +78,13 @@ export const CreateTaskDialog = () => {
     try {
       console.log("Creating task with values:", values);
       await mutation.mutateAsync(values);
+      
+      queryClient.invalidateQueries({
+        predicate: (query) => query.queryKey[0] === "tasks",
+      });
+
       toast.success("Task created successfully!");
       form.reset();
-      // reload the page
-      window.location.reload();
       setOpen(false);
     } catch (error) {
       console.error("Error creating task:", error);
@@ -84,9 +94,12 @@ export const CreateTaskDialog = () => {
 
   useEffect(() => {
     if (open) {
-      refetch();
+      form.reset({
+        ...form.getValues(),
+        status: initialStatus,
+      });
     }
-  }, [open, refetch]);
+  }, [open, initialStatus, form]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
