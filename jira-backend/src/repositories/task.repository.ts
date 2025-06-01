@@ -39,3 +39,11 @@ export const findTasksByProjectId = async (
 
   return await Task.find(query).sort({ [sortField]: sortDirection });
 };
+
+export const updateStatus = async (taskId: string, status: string) => {
+  return await Task.findByIdAndUpdate(
+    taskId,
+    { status },
+    { new: true }
+  );
+};

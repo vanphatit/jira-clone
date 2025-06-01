@@ -10,7 +10,7 @@ export const useTaskFilters = () => {
   const status = searchParams.get("status") as TaskStatus | null;
   const search = searchParams.get("search");
   const dueDate = searchParams.get("dueDate");
-  const sort = searchParams.get("sort") || "position";
+  const sort = searchParams.get("sort") || "dueDate";
   const direction = (searchParams.get("direction") as "asc" | "desc") || "asc"; // <-- default "asc"
   const assigneeId = searchParams.get("assigneeId");
 

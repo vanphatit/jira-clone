@@ -32,5 +32,14 @@ export const getTasksByProject = async (
     direction?: "asc" | "desc";
   }
 ) => {
-  return await taskRepo.findTasksByProjectId(projectId, filters);
+  const tasks = await taskRepo.findTasksByProjectId(projectId, filters);
+  // change the status of overdue tasks
+  const now = new Date();
+  tasks.forEach((task) => {
+    if (task.dueDate && task.dueDate < now && task.status !== "DONE") {
+      task.status = "OVERDUE";
+      taskRepo.updateStatus(task._id as string, "OVERDUE")
+    }
+  })
+  return tasks;
 };

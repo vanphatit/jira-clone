@@ -9,6 +9,10 @@ import { RootState } from "@/stores";
 import { useSelector } from "react-redux";
 import { DataFilters } from "./data-filters";
 import { useTaskFilters } from "../api/use-task-filter";
+import { DataTable } from "./data-table";
+import { columns } from "./columns";
+import { TaskTableContext } from "./task-table-context";
+import { useGetMembers } from "@/features/projects/api/use-get-members";
 
 export const TaskViewSwitcher = () => {
   const currentProjectId = useSelector(
@@ -24,6 +28,8 @@ export const TaskViewSwitcher = () => {
       </div>
     );
   }
+
+  const { data: members = [] } = useGetMembers(currentProjectId || "");
 
   const [{ status, assigneeId, search, dueDate, sort, direction }] =
     useTaskFilters();
@@ -44,7 +50,7 @@ export const TaskViewSwitcher = () => {
   });
 
   return (
-    <Tabs className="flex-1 w-full border rounded-lg">
+    <Tabs className="flex-1 w-full border rounded-lg" defaultValue="table">
       <div className="h-full flex flex-col overflow-auto p-4">
         <div className="flex flex-col gap-y-2 lg:flex-row justify-between items-center">
           <TabsList className="h-8 w-full lg:w-auto">
@@ -61,7 +67,7 @@ export const TaskViewSwitcher = () => {
           <CreateTaskDialog />
         </div>
         <DottedSeparator className="my-4" />
-        <DataFilters/>
+        <DataFilters />
         <DottedSeparator className="my-4" />
         {isLoading ? (
           <div className="w-full border rounded-log h-[200px] flex flex-col items-center justify-center">
@@ -75,16 +81,9 @@ export const TaskViewSwitcher = () => {
                   No tasks found for this project.
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {tasks.map((task) => (
-                    <div
-                      key={task._id}
-                      className="p-4 bg-white rounded-lg shadow"
-                    >
-                      {JSON.stringify(task, null, 2)}
-                    </div>
-                  ))}
-                </div>
+                <TaskTableContext.Provider value={{ members }}>
+                  <DataTable columns={columns} data={tasks} />
+                </TaskTableContext.Provider>
               )}
             </TabsContent>
             <TabsContent value="kanban" className="mt-0">
