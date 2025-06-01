@@ -8,6 +8,7 @@ import { TaskDate } from "./task-date";
 import { Badge } from "@/components/ui/badge";
 import { snakeCaseToTitleCase } from "@/lib/utils";
 import { useTaskTable } from "./task-table-context"; // <-- Import Context
+import Image from "next/image";
 
 export const columns: ColumnDef<Task>[] = [
   {
@@ -94,13 +95,15 @@ export const columns: ColumnDef<Task>[] = [
       }
 
       return (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-2">
           {assignees.map((assignee: any) => (
             <div
               key={assignee.userId._id}
               className="flex items-center space-x-2"
             >
-              <img
+              <Image
+                width={24}
+                height={24}
                 src={assignee.userId.avatar}
                 alt={assignee.userId.name}
                 className="w-6 h-6 rounded-full object-cover border"

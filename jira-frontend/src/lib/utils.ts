@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function snakeCaseToTitleCase(str: string): string {
   return str
-    .toLowerCase()
+    .toUpperCase()
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (char) => char.toUpperCase())
 }
