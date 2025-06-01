@@ -17,9 +17,27 @@ export const createTaskHandler = async (req: Request, res: Response) => {
 
 export const getTasksByProjectHandler = async (req: Request, res: Response) => {
   const projectId = req.params.projectId;
+  const {
+    status,
+    assigneeId,
+    search,
+    dueDate,
+    sort = "position",
+    direction = "asc",
+  } = req.query;
+
   if (!projectId)
     return res.status(400).json({ message: "Project ID is required" });
 
-  const tasks = await taskService.getTasksByProject(projectId);
+  const filters = {
+    status: status as string,
+    assigneeId: assigneeId as string,
+    search: search as string,
+    dueDate: dueDate as string,
+    sort: sort as string,
+    direction: direction as "asc" | "desc",
+  };
+
+  const tasks = await taskService.getTasksByProject(projectId, filters);
   res.json(tasks);
 };

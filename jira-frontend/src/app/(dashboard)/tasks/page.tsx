@@ -15,6 +15,14 @@ export default function ProjectTasksPage() {
 
     const currentProject = projects.find((p) => p._id === currentProjectId);
 
+    if (!currentProject) {
+        return (
+            <div className="flex items-center justify-center h-full">
+                <p className="text-gray-500">Please select a project to view tasks.</p>
+            </div>
+        );
+    }
+
     return (
       <div className="flex flex-col gap-y-4 bg-white p-6 rounded-lg shadow-sm">
         <div className="flex items-center justify-between">

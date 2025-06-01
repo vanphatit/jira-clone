@@ -32,6 +32,7 @@ import { PlusIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { MultiSelectCombobox } from "@/components/multi-select-combobox";
 import { toast } from "sonner";
+import { TaskStatus } from "../types";
 
 export const CreateTaskDialog = () => {
   const [open, setOpen] = useState(false);
@@ -41,6 +42,10 @@ export const CreateTaskDialog = () => {
   )!;
   const currentWorkspaceId = useSelector(
     (s: RootState) => s.workspace.currentWorkspaceId
+  )!;
+
+  const currentUserId = useSelector(
+    (s: RootState) => s.auth.user?._id
   )!;
 
   const { data: members = [], refetch } = useGetMembers(currentProjectId || "");
@@ -53,8 +58,9 @@ export const CreateTaskDialog = () => {
       name: "",
       description: "",
       dueDate: "",
+      ownerId: currentUserId,
       position: 0,
-      status: "TODO",
+      status: TaskStatus.BACKLOG, // Default status
       projectId: currentProjectId,
       workspaceId: currentWorkspaceId,
       assigneeIds: [], // ⬅️ Array
@@ -63,9 +69,12 @@ export const CreateTaskDialog = () => {
 
   const onSubmit = async (values: CreateTaskSchema) => {
     try {
+      console.log("Creating task with values:", values);
       await mutation.mutateAsync(values);
       toast.success("Task created successfully!");
       form.reset();
+      // reload the page
+      window.location.reload();
       setOpen(false);
     } catch (error) {
       console.error("Error creating task:", error);

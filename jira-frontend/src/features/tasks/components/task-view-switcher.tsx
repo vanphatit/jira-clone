@@ -1,40 +1,101 @@
 import { DottedSeparator } from "@/components/dotted-separator";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { PlusIcon } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader, PlusIcon } from "lucide-react";
 import { CreateTaskDialog } from "./create-task-dialog";
+import { useTasksByProject } from "../api/use-get-tasks";
+import { useAppSelector } from "@/stores/hooks";
+import { RootState } from "@/stores";
+import { useSelector } from "react-redux";
+import { DataFilters } from "./data-filters";
+import { useTaskFilters } from "../api/use-task-filter";
 
 export const TaskViewSwitcher = () => {
+  const currentProjectId = useSelector(
+    (s: RootState) => s.project.currentProjectId
+  )!;
+  const currentWorkspaceId = useSelector(
+    (s: RootState) => s.workspace.currentWorkspaceId
+  )!;
+  if (!currentProjectId) {
     return (
-      <Tabs className="flex-1 w-full border rounded-lg">
-        <div className="h-full flex flex-col overflow-auto p-4">
-          <div className="flex flex-col gap-y-2 lg:flex-row justify-between items-center">
-            <TabsList className="h-8 w-full lg:w-auto">
-              <TabsTrigger className="h-8 w-full lg:w-auto" value="table">
-                Table
-              </TabsTrigger>
-              <TabsTrigger className="h-8 w-full lg:w-auto" value="kanban">
-                Kanban
-              </TabsTrigger>
-              <TabsTrigger className="h-8 w-full lg:w-auto" value="calendar">
-                Calendar
-              </TabsTrigger>
-            </TabsList>
-            {/* <Button size="sm" className="w-full lg:w-auto">
-                <PlusIcon className="size-4 mr-2" />
-                New Task
-            </Button> */}
-            <CreateTaskDialog />
-          </div>
-          <DottedSeparator className="my-4" />
-          {/* Add filters */}
-          <DottedSeparator className="my-4" />
-          <>
-            <TabsContent value="table" className="mt-0">Data table</TabsContent>
-            <TabsContent value="kanban" className="mt-0">Data kanban</TabsContent>
-            <TabsContent value="calendar" className="mt-0">Data calendar</TabsContent>
-          </>
-        </div>
-      </Tabs>
+      <div className="w-full h-full flex items-center justify-center">
+        <p className="text-gray-500">Please select a project to view tasks.</p>
+      </div>
     );
-}
+  }
+
+  const [{ status, assigneeId, search, dueDate, sort, direction }] =
+    useTaskFilters();
+
+  const {
+    data: tasks = [],
+    isLoading,
+    error,
+  } = useTasksByProject({
+    workspaceId: currentWorkspaceId,
+    projectId: currentProjectId,
+    status,
+    assigneeId,
+    search,
+    dueDate,
+    sort,
+    direction,
+  });
+
+  return (
+    <Tabs className="flex-1 w-full border rounded-lg">
+      <div className="h-full flex flex-col overflow-auto p-4">
+        <div className="flex flex-col gap-y-2 lg:flex-row justify-between items-center">
+          <TabsList className="h-8 w-full lg:w-auto">
+            <TabsTrigger className="h-8 w-full lg:w-auto" value="table">
+              Table
+            </TabsTrigger>
+            <TabsTrigger className="h-8 w-full lg:w-auto" value="kanban">
+              Kanban
+            </TabsTrigger>
+            <TabsTrigger className="h-8 w-full lg:w-auto" value="calendar">
+              Calendar
+            </TabsTrigger>
+          </TabsList>
+          <CreateTaskDialog />
+        </div>
+        <DottedSeparator className="my-4" />
+        <DataFilters/>
+        <DottedSeparator className="my-4" />
+        {isLoading ? (
+          <div className="w-full border rounded-log h-[200px] flex flex-col items-center justify-center">
+            <Loader className="size-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <>
+            <TabsContent value="table" className="mt-0">
+              {tasks.length === 0 ? (
+                <div className="text-center text-gray-500">
+                  No tasks found for this project.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {tasks.map((task) => (
+                    <div
+                      key={task._id}
+                      className="p-4 bg-white rounded-lg shadow"
+                    >
+                      {JSON.stringify(task, null, 2)}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+            <TabsContent value="kanban" className="mt-0">
+              Data kanban
+            </TabsContent>
+            <TabsContent value="calendar" className="mt-0">
+              Data calendar
+            </TabsContent>
+          </>
+        )}
+      </div>
+    </Tabs>
+  );
+};
