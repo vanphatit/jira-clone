@@ -7,6 +7,8 @@ import {
 import { ExternalLinkIcon, TrashIcon } from "lucide-react";
 import { useDeleteTask } from "../api/use-delete-task";
 import { toast } from "sonner";
+import { useState } from "react";
+import { EditTaskDialog } from "./edit-task-dialog";
 
 interface TaskActionsProps {
   id: string;
@@ -16,6 +18,7 @@ interface TaskActionsProps {
 
 export const TaskActions = ({ id, projectId, children }: TaskActionsProps) => {
   const { mutate: deleteTask, isLoading } = useDeleteTask();
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   return (
     <div className="flex justify-end">
@@ -23,7 +26,9 @@ export const TaskActions = ({ id, projectId, children }: TaskActionsProps) => {
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuItem
-            onClick={() => {}}
+            onClick={() => {
+              setIsEditOpen(true);
+            }}
             disabled={false}
             className="font-medium p-[10px]"
           >
@@ -50,6 +55,12 @@ export const TaskActions = ({ id, projectId, children }: TaskActionsProps) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <EditTaskDialog
+        taskId={id}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+      />
     </div>
   );
 };

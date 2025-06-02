@@ -22,6 +22,10 @@ export const createTask = async (payload: CreateTaskDTO) => {
   return await taskRepo.createTask(payload);
 };
 
+export const getTaskByIdService = async (taskId: string) => {
+  return taskRepo.getTaskById(taskId);
+};
+
 export const getTasksByProject = async (
   projectId: string,
   filters: {

@@ -15,6 +15,22 @@ export const createTaskHandler = async (req: Request, res: Response) => {
   res.status(201).json(task);
 };
 
+export const getTaskHandler = async (req: Request, res: Response) => {
+  const { taskId } = req.params;
+
+  if (!taskId) {
+    return res.status(400).json({ message: "Task ID is required" });
+  }
+
+  const task = await taskService.getTaskByIdService(taskId);
+
+  if (!task) {
+    return res.status(404).json({ message: "Task not found" });
+  }
+
+  res.status(200).json(task);
+};
+
 export const getTasksByProjectHandler = async (req: Request, res: Response) => {
   const projectId = req.params.projectId;
   const {

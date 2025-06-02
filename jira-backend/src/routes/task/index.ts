@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  getTaskHandler,
   updateTaskHandler,
   createTaskHandler,
   deleteTaskHandler,
@@ -11,6 +12,7 @@ const router = express.Router();
 
 router.post("/", requireAuth, createTaskHandler);
 router.get("/project/:projectId", requireAuth, getTasksByProjectHandler);
+router.get("/:taskId", getTaskHandler);
 router.patch("/:taskId", requireAuth, updateTaskHandler); // <- Add this!
 router.delete("/:taskId", requireAuth, deleteTaskHandler);
 

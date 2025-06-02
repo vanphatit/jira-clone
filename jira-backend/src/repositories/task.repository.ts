@@ -5,6 +5,10 @@ export const createTask = async (data: CreateTaskDTO) => {
   return await Task.create(data);
 };
 
+export const getTaskById = async (taskId: string) => {
+  return Task.findById(taskId);
+};
+
 export const findTasksByProjectId = async (
   projectId: string,
   filters: {
