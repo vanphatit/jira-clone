@@ -5,9 +5,8 @@ import {
   updateProjectSchema,
 } from "../validators/project.validators";
 import * as projectService from "../services/project.service";
-import { findUserById } from "../repositories/user.repository";
 import { deleteInvite, getInvite } from "../repositories/project.repository";
-import { Project } from "../models/project";
+import { Project } from "../models/project.model";
 
 export const createProjectHandler = async (req: Request, res: Response) => {
   const result = createProjectSchema.safeParse(req.body);
@@ -139,10 +138,7 @@ export const acceptInviteHandler = async (req: Request, res: Response) => {
   const userId = req.user?.userId;
   if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-  const invite = await getInvite(
-    projectId as string,
-    email as string
-  );
+  const invite = await getInvite(projectId as string, email as string);
   if (!invite) {
     return res.status(400).json({ message: "Invite not found or expired" });
   }
@@ -197,11 +193,7 @@ export const removeMemberHandler = async (req: Request, res: Response) => {
   }
 
   try {
-    await projectService.removeMember(
-      projectId,
-      userIdToRemove,
-      currentUserId
-    );
+    await projectService.removeMember(projectId, userIdToRemove, currentUserId);
     return res.status(200).json({ message: "Member removed successfully" });
   } catch (err: any) {
     return res.status(400).json({ message: err.message });

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Project } from "../models/project";
+import { Project } from "../models/project.model";
 import {
   CreateProjectDTO,
   UpdateProjectDTO,
@@ -8,7 +8,7 @@ import { findUserById } from "./user.repository";
 import { redis } from "../utils/redis";
 
 export const createProjectTeam = async (
-  data: CreateProjectDTO & { ownerId: string; }
+  data: CreateProjectDTO & { ownerId: string }
 ) => {
   const project = new Project({
     name: data.name,
@@ -19,7 +19,9 @@ export const createProjectTeam = async (
     members: [
       {
         userId: data.ownerId,
-        email: await findUserById(data.ownerId).then(user => user?.email || ""),
+        email: await findUserById(data.ownerId).then(
+          (user) => user?.email || ""
+        ),
         status: "JOINED", // Set initial status to JOINED
         role: "ADMIN", // Set creator as ADMIN
       },
@@ -28,9 +30,7 @@ export const createProjectTeam = async (
   return await project.save();
 };
 
-export const createProjectWorkspace = async (
-  data: any
-) => {
+export const createProjectWorkspace = async (data: any) => {
   console.log("Creating project with data:", data);
   const project = new Project({
     name: data.name,
@@ -38,7 +38,7 @@ export const createProjectWorkspace = async (
     template: data.template,
     workspaceId: data.workspaceId,
     owner: data.ownerId,
-    members: data.members
+    members: data.members,
   });
   return await project.save();
 };
@@ -66,13 +66,13 @@ export const getProjectMembers = async (projectId: string) => {
   if (!project) {
     throw new Error("Project not found");
   }
-  return project.members
-}
+  return project.members;
+};
 
 export const updateProjectById = async (
   projectId: string,
   userId: string,
-  name: string,
+  name: string
 ) => {
   return await Project.findOneAndUpdate(
     { _id: projectId, owner: userId, deleted: false }, // only owner can update
@@ -107,11 +107,7 @@ export const deleteInvite = async (projectId: string, email: string) => {
 };
 
 export const softDeleteProjectById = async (projectId: string) => {
-  return Project.findByIdAndUpdate(
-    projectId,
-    { deleted: true },
-    { new: true }
-  );
+  return Project.findByIdAndUpdate(projectId, { deleted: true }, { new: true });
 };
 
 export const removeProjectMember = async (

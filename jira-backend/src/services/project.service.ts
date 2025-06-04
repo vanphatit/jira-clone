@@ -1,9 +1,7 @@
-import { Project } from "../models/project";
+import { Project } from "../models/project.model";
 import * as projectRepo from "../repositories/project.repository";
 import { sendProjectInviteEmail } from "../utils/sendEmail";
-import {
-  CreateProjectDTO,
-} from "../validators/project.validators";
+import { CreateProjectDTO } from "../validators/project.validators";
 import { getWorkspaceMembers } from "./workspace.service";
 
 export const createProject = async (
@@ -34,7 +32,7 @@ export const getProjectsByWorkspace = async (
 
 export const getProjectMembers = async (projectId: string) => {
   return await projectRepo.getProjectMembers(projectId);
-}
+};
 
 export const updateProject = async (
   projectId: string,

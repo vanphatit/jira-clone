@@ -1,4 +1,6 @@
-import { ITask } from "../models/tasks";
+import { Types } from "mongoose";
+import { ITask } from "../models/tasks.model";
+import { findProjectById } from "../repositories/project.repository";
 import * as taskRepo from "../repositories/task.repository";
 import { CreateTaskDTO } from "../validators/task.validators";
 
@@ -19,7 +21,9 @@ export const createTask = async (payload: CreateTaskDTO) => {
     payload.position = 0; // Start at position 0 if no tasks exist
   }
 
-  return await taskRepo.createTask(payload);
+  const newTask = await taskRepo.createTask(payload);
+
+  return newTask;
 };
 
 export const getTaskByIdService = async (taskId: string) => {
@@ -53,9 +57,25 @@ export const updateTaskService = async (
   taskId: string,
   update: Partial<ITask>
 ) => {
+  const task = await taskRepo.findTasksByIdAndProjectId(
+    taskId,
+    update.projectId as string
+  );
+
+  if (!task) {
+    throw new Error("Task not found in the specified project");
+  }
+
   return taskRepo.updateTask(taskId, update);
 };
 
 export const deleteTaskService = async (taskId: string) => {
-  return taskRepo.deleteTask(taskId);
+  const task = await taskRepo.getTaskById(taskId);
+
+  const project = await findProjectById(task?.projectId as string);
+  if (!project) {
+    throw new Error("Project not found");
+  }
+
+  return await taskRepo.deleteTask(taskId);
 };

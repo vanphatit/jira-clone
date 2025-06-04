@@ -7,7 +7,7 @@ import {
 
 import * as workspaceRepo from "../repositories/workspace.repository";
 import * as workspaceService from "../services/workspace.service";
-import { Workspace } from "../models/workspace";
+import { Workspace } from "../models/workspace.model";
 
 export const createWorkspaceHandler = async (req: Request, res: Response) => {
   const parsed = createWorkspaceSchema.safeParse(req.body);

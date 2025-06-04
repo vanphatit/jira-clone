@@ -15,7 +15,7 @@ export const createTaskSchema = z.object({
       "OVERDUE",
       "ARCHIVED",
     ])
-    .default("TODO"),
+    .default("BACKLOG"),
   projectId: z.string().min(1),
   workspaceId: z.string().min(1),
   ownerId: z.string().min(1),

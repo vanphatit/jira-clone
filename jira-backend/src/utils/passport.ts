@@ -1,7 +1,7 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as GitHubStrategy } from "passport-github2";
-import { User } from "../models/user";
+import { User } from "../models/user.model";
 import { generateInitialsAvatar } from "./generateInitialAvatar";
 
 passport.serializeUser((user: any, done) => {
@@ -31,7 +31,12 @@ passport.use(
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
       callbackURL: `${process.env.SERVER_URL}/api/auth/oauth/github/callback`,
     },
-    async (accessToken: any, _refresh: any, profile: any, done: (arg0: null, arg1: any) => void) => {
+    async (
+      accessToken: any,
+      _refresh: any,
+      profile: any,
+      done: (arg0: null, arg1: any) => void
+    ) => {
       (profile as any).accessToken = accessToken;
       done(null, profile);
     }

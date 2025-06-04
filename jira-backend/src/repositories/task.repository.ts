@@ -1,12 +1,48 @@
-import { ITask, Task } from "../models/tasks";
+import mongoose, { Types } from "mongoose";
+import { ITask, Task } from "../models/tasks.model";
 import { CreateTaskDTO } from "../validators/task.validators";
+import * as projectRepo from "./project.repository";
+import { Project } from "../models/project.model";
 
 export const createTask = async (data: CreateTaskDTO) => {
-  return await Task.create(data);
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const project = await Project.findById(data.projectId).session(session);
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    const task = await Task.create([{ ...data }], {
+      session,
+    }); // task is an array because create() with array returns array
+
+    const newTask = task[0];
+
+    project.tasks.push(newTask._id as Types.ObjectId);
+    await project.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return newTask;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw new Error(`Failed to create task: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 };
 
 export const getTaskById = async (taskId: string) => {
   return Task.findById(taskId);
+};
+
+export const findTasksByIdAndProjectId = async (
+  taskId: string,
+  projectId: string
+) => {
+  return Task.findOne({ _id: taskId, projectId });
 };
 
 export const findTasksByProjectId = async (
@@ -52,7 +88,31 @@ export const updateTask = async (taskId: string, update: Partial<ITask>) => {
   return Task.findByIdAndUpdate(taskId, update, { new: true });
 };
 
-
 export const deleteTask = async (taskId: string) => {
-  return Task.findByIdAndDelete(taskId);
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const task = await Task.findById(taskId).session(session);
+    if (!task) {
+      throw new Error("Task not found");
+    }
+
+    const project = await Project.findById(task.projectId).session(session);
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    await Task.deleteOne({ _id: taskId }, { session });
+    project.tasks = project.tasks.filter(
+      (t) => t.toString() !== taskId
+    );
+    await project.save({ session });
+    await session.commitTransaction();
+    session.endSession();
+    
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw new Error(`Failed to delete task: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 };

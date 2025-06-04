@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 
-import { User } from "../models/user";
+import { User } from "../models/user.model";
 import { createUser, findUserByEmail } from "../repositories/user.repository";
 import { generateInitialsAvatar } from "../utils/generateInitialAvatar";
 

@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { User } from "../models/user";
+import { User } from "../models/user.model";
 import { redis } from "../utils/redis";
 import {
   signAccessToken,

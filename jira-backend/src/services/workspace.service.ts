@@ -1,4 +1,4 @@
-import { Workspace } from "../models/workspace";
+import { Workspace } from "../models/workspace.model";
 import { findUserById } from "../repositories/user.repository";
 import * as workspaceRepo from "../repositories/workspace.repository";
 import { sendWorkspaceInviteEmail } from "../utils/sendEmail";

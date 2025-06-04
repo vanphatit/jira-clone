@@ -1,4 +1,5 @@
 services:
+  # Frontend
   frontend_jira_clone:
     build:
       context: ./jira-frontend
@@ -15,6 +16,7 @@ services:
     networks:
       - jira_clone_net
 
+  # Backend
   backend_jira_clone:
     build:
       context: ./jira-backend
@@ -26,19 +28,79 @@ services:
       - /src/node_modules
     env_file:
       - ./jira-backend/.env.local
-    networks:
-      - jira_clone_net 
-
-  mongo_jira_clone:
-    image: mongo
-    container_name: mongo_jira
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_jira_clone_data:/data/db
+    depends_on:
+      mongo1:
+        condition: service_healthy
+      mongo2:
+        condition: service_healthy
+      mongo3:
+        condition: service_healthy
+      redis_jira_clone:
+        condition: service_started
     networks:
       - jira_clone_net
 
+  # MongoDB Replica Set - Node 1
+  mongo1:
+    image: mongo:6.0
+    container_name: mongo1
+    ports:
+      - "27017:27017"
+    command: ["mongod", "--replSet", "rs0", "--bind_ip", "0.0.0.0"]
+    volumes:
+      - mongo1_data:/data/db
+    networks:
+      - jira_clone_net
+    healthcheck:
+      test: mongosh --quiet --eval 'db.hello().isWritablePrimary' | grep true
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  # MongoDB Replica Set - Node 2
+  mongo2:
+    image: mongo:6.0
+    container_name: mongo2
+    command: ["mongod", "--replSet", "rs0", "--bind_ip", "0.0.0.0"]
+    volumes:
+      - mongo2_data:/data/db
+    networks:
+      - jira_clone_net
+    healthcheck:
+      test: mongosh --quiet --eval 'var s=db.hello(); s.isWritablePrimary || s.secondary' | grep true
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  # MongoDB Replica Set - Node 3
+  mongo3:
+    image: mongo:6.0
+    container_name: mongo3
+    command: ["mongod", "--replSet", "rs0", "--bind_ip", "0.0.0.0"]
+    volumes:
+      - mongo3_data:/data/db
+    networks:
+      - jira_clone_net
+    healthcheck:
+      test: mongosh --quiet --eval 'var s=db.hello(); s.isWritablePrimary || s.secondary' | grep true
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  # Mongo Express (admin dashboard)
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo1
+    depends_on:
+      - mongo1
+    networks:
+      - jira_clone_net
+
+  # Redis
   redis_jira_clone:
     image: redis:7-alpine
     container_name: redis_jira
@@ -49,8 +111,37 @@ services:
     networks:
       - jira_clone_net
 
+  # Replica Set Initialization
+  mongo-setup:
+    image: mongo:6.0
+    container_name: mongo-setup
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    entrypoint: ["/bin/bash", "-c"]
+    command: >
+      "
+      sleep 30;
+      echo 'Setting up replica set';
+      mongosh \"mongodb://mongo1:27017\" --eval '
+        rs.initiate({
+          _id: \"rs0\",
+          members: [
+            { _id: 0, host: \"mongo1:27017\" },
+            { _id: 1, host: \"mongo2:27017\" },
+            { _id: 2, host: \"mongo3:27017\" }
+          ]
+        });
+      ';
+      "
+    networks:
+      - jira_clone_net
+
 volumes:
-  mongo_jira_clone_data:
+  mongo1_data:
+  mongo2_data:
+  mongo3_data:
   redis_jira_clone_data:
 
 networks:

@@ -1,5 +1,5 @@
-import { User } from "../models/user";
-import { Workspace } from "../models/workspace";
+import { User } from "../models/user.model";
+import { Workspace } from "../models/workspace.model";
 import { redis } from "../utils/redis";
 
 export const createWorkspace = async (

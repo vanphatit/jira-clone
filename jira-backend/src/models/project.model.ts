@@ -16,6 +16,7 @@ export interface IProject extends Document {
     role: "MEMBER" | "ADMIN";
     status: "PENDING" | "JOINED";
   }[];
+  tasks: mongoose.Types.ObjectId[]; // Array of task IDs
   deleted: boolean;
 }
 
@@ -57,6 +58,7 @@ const ProjectSchema = new mongoose.Schema(
         },
       },
     ],
+    tasks: [{ type: Schema.Types.ObjectId, ref: "Task" }],
     deleted: { type: Boolean, default: false },
   },
   { timestamps: true }
