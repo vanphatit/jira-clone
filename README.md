@@ -1,4 +1,4 @@
-# Jira Clone
+# Jira Clone (This project is for education only)
 
 A **Jira-like project management application** built with a modern tech stack.
 
